@@ -102,7 +102,12 @@ ENV/
 
 # data file
 *.csv
+*.txt
 
 # IDE
 */.idea/
 .idea/
+
+# music part
+*/music/input/
+music/input/
