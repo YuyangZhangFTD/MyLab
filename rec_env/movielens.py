@@ -102,7 +102,7 @@ def read_movielens_latest():
     zip_path = _common.get_data(URL_PREFIX + URL_LATEST,"movielens","movielens_latest.zip")
     archive_path = os.path.join("ml-latest","ratings.csv")
     data = itertools.islice(_read_data(zip_path, archive_path), 1, None)
-    for line in _make_contiguous(data, separator=",")
+    for line in _make_contiguous(data, separator=","):
         yield line
 
 
@@ -112,5 +112,5 @@ def read_movielens_latest_small():
     zip_path = _common.get_data(URL_PREFIX+URL_LATEST_SMALL,"movielens","movielens_latest_small.zip")
     archive_path = os.path.join("ml-latest-small", "ratings.csv")
     data = itertools.islice(_read_data(zip_path, archive_path), 1,None)
-    for line in _make_contiguous(data, separator=",")
+    for line in _make_contiguous(data, separator=","):
         yield line
