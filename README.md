@@ -1,9 +1,9 @@
 # MyLab
-<<<<<<< HEAD
+
 Something cool here.
-=======
-Something cool.
->>>>>>> 212240982a4645c2527cd56ffbe8a461a9535766
+
+
+
 ***
 2017-10-06
 
@@ -23,9 +23,9 @@ And the framework is so awesome.
 You can try to use it and develop your onw recommendation algorithm on it.
 just use
 ``
-<<<<<<< HEAD
+
 surprise
 ``
-=======
->>>>>>> 212240982a4645c2527cd56ffbe8a461a9535766
+
+
 ---
