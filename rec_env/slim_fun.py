@@ -111,15 +111,13 @@ def _slim_coordinate_descent(
     n_samples, n_features = X.shape
     w = np.zeros((n_features, 1))
     norm_cols_X = np.sum(np.power(X, 2), axis=0)
-    R = np.empty(n_samples)
-    XtA = np.empty(n_features)
     if alpha == 0 or beta == 0:
         print("Coordinate descent with no regularization may lead to"
               " unexpected results and is discouraged.")
         return None
 
-    R = y - np.dot(X, w)
-    tol *= np.dot(y, y)
+    R = y - np.dot(X, w).reshape(n_samples,1)
+    tol *= np.dot(y.T, y)
 
     for n_iter in range(max_iter):
         w_max = 0
@@ -143,7 +141,7 @@ def _slim_coordinate_descent(
             w_ii = w[ii]
 
             if w_ii != 0:
-                R += w_ii * X[:, ii]
+                R += w_ii * X[:, ii].reshape(10, 1)
 
             tmp = np.sum(X[:, ii] * R)
 
@@ -156,7 +154,8 @@ def _slim_coordinate_descent(
 
             # update residual
             if w[ii] != 0.0:
-                R -= w[ii] * X[:, ii]
+                R -= w[ii] * X[:, ii].reshape(10, 1)
+
 
             # update the maximum absolute coefficient update
             d_w_ii = np.abs(w[ii] - w_ii)
@@ -176,9 +175,9 @@ def _slim_coordinate_descent(
             else:
                 dual_norm_XtA = np.max(np.abs(n_features, XtA))
 
-            R_norm2 = R * R
+            R_norm2 = np.dot(R.T, R)
 
-            w_norm2 = w * w
+            w_norm2 = np.dot(w.T, w)
 
             if dual_norm_XtA > alpha:
                 const = alpha / dual_norm_XtA

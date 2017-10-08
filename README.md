@@ -22,10 +22,10 @@ So, I decide to use `Surprise` instead, which I have read the codes before.
 And the framework is so awesome.
 You can try to use it and develop your onw recommendation algorithm on it.
 just use
-``
 
+```
 surprise
-``
+```
 
 
 ---
