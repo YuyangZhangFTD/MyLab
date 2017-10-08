@@ -27,5 +27,14 @@ just use
 surprise
 ```
 
+---
+
+2017-10-08
+
+I try to overwrite ElasticNet which is in sklearn, and try complie the cython of cd_fast,
+which can be applied in slim.
+
+Failed...
+I will try again tonight.
 
 ---
