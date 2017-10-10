@@ -197,3 +197,59 @@ def _slim_coordinate_descent(
                 break
 
     return w, gap, tol, n_iter + 1
+
+
+@rt.fn_timer
+def glmnet_own(
+        X,
+        y,
+        alpha,
+        beta,
+        zero_pos=None,
+        iter_num=10,
+        tol=0.001,
+        positive=False):
+    sample_num, feature_num = X.shape
+    y = y.reshape([sample_num, 1])
+    w = np.zeros((feature_num, 1))
+    norm_cols_X = np.sum(np.power(X, 2), axis=0)
+
+    # residual
+    r = y - np.dot(X, w)
+    # tolerance
+    tol *= np.dot(y.T, y)
+
+    for iter_i in range(iter_num):
+        w_max = 0
+        d_w_max = 0
+        for feat_i in range(feature_num):
+            if (zero_pos is not None and feat_i ==
+                    zero_pos) or norm_cols_X[feat_i] == 0:
+                continue
+
+            w_i = w[feat_i]
+
+            if w_i != 0:
+                r += w_i * X[:, feat_i].reshape([sample_num, 1])
+
+            tmp = np.dot(X[:, feat_i], r)
+
+            if positive and tmp < 0:
+                w[feat_i] = 0
+            else:
+                w[feat_i] = np.sign(
+                    tmp) * np.max(np.abs(tmp) - alpha, 0) / (norm_cols_X[feat_i] + beta)
+
+            if w[feat_i] != 0:
+                r -= w[feat_i] * X[:, feat_i].reshape([sample_num, 1])
+
+            d_w_ii = np.abs(w[feat_i] - w_i)
+
+            d_w_max = d_w_ii if d_w_ii > d_w_max else d_w_max
+
+            w_max = np.abs(w[feat_i]) if np.abs(w[feat_i]) > w_max else w_max
+
+        if w_max == 0.0 or d_w_max / w_max < tol or iter_i == iter_num - 1:
+            break
+
+    return w
