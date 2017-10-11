@@ -4,6 +4,7 @@ from collections import defaultdict
 import glmnet_py as glmnet
 import RecTool as rt
 import numpy as np
+from sklearn import preprocessing
 
 
 @rt.fn_timer
@@ -53,7 +54,7 @@ def slim_data_read(para_file, para_split_precent=0.8):
     print("finish reading")
     max_user_num = max(user_dict.keys())
     max_item_num = max(item_dict.keys())
-    rating_matrix = sparse.lil_matrix((max_user_num+1, max_item_num+1))
+    rating_matrix = sparse.lil_matrix((max_user_num + 1, max_item_num + 1))
     for user, user_entry in user_dict.items():
         for item, rating in user_entry:
             rating_matrix[user, item] = rating
@@ -73,130 +74,17 @@ def slim_glmnet(para_m, alpha=0.5, nlambda=10):
     # \gamma*(\alpha*\|W\|+(1-\alpha)\frac{1}{2}\|W\|^2_2)
     for col in range(item_num):
         aj = np.array(A.getcol(col).todense())
-        glmnet_fit = glmnet.glmnet(x=A, y=aj, family='gaussian', alpha=alpha, nlambda=nlambda)
+        glmnet_fit = glmnet.glmnet(
+            x=A,
+            y=aj,
+            family='gaussian',
+            alpha=alpha,
+            nlambda=nlambda)
         new_wj = glmnet_fit["beta"][:, -1]
         for i in aj.indices:
             W[i, col] = new_wj[i]
 
     return W
-
-
-
-@rt.fn_timer
-def slim():
-    pass
-
-
-@rt.fn_timer
-def _slim_coordinate_descent(
-        X,
-        y,
-        alpha,
-        beta,
-        zero_position,
-        max_iter,
-        positive,
-        tol=0.0001,
-        random=True):
-    """
-             We minimize
-
-            (1/2) * norm(y - X w, 2)^2 + alpha norm(w, 1) + (beta/2) norm(w, 2)^2
-
-            subject to w[zero_position] = 0
-
-                        w >= 0  (positive == True)
-
-    """
-    n_samples, n_features = X.shape
-    w = np.zeros((n_features, 1))
-    norm_cols_X = np.sum(np.power(X, 2), axis=0)
-    if alpha == 0 or beta == 0:
-        print("Coordinate descent with no regularization may lead to"
-              " unexpected results and is discouraged.")
-        return None
-
-    R = y - np.dot(X, w).reshape(n_samples,1)
-    tol *= np.dot(y.T, y)
-
-    for n_iter in range(max_iter):
-        w_max = 0
-        d_w_max = 0
-        for f_iter in range(n_features):
-            # keep constrain w[zero_position] = 0
-            if f_iter == zero_position:
-                continue
-
-            # choose a dimension to optimize randomly or not
-            if random:
-                ii = np.random.randint(n_features)
-            else:
-                ii = f_iter
-
-            # if columns of X are 0, w can't be updated
-            if norm_cols_X[ii] == 0:
-                continue
-
-            # Store previous value
-            w_ii = w[ii]
-
-            if w_ii != 0:
-                R += w_ii * X[:, ii].reshape(10, 1)
-
-            tmp = np.sum(X[:, ii] * R)
-
-            # keep positive for all w
-            if positive and tmp < 0:
-                w[ii] = 0.0
-            else:
-                w[ii] = (np.sign(tmp) * np.max(np.abs(tmp) - alpha, 0)
-                         / (norm_cols_X[ii] + beta))
-
-            # update residual
-            if w[ii] != 0.0:
-                R -= w[ii] * X[:, ii].reshape(10, 1)
-
-
-            # update the maximum absolute coefficient update
-            d_w_ii = np.abs(w[ii] - w_ii)
-            if d_w_ii > d_w_max:
-                d_w_max = d_w_ii
-
-            if np.abs(w[ii]) > w_max:
-                w_max = np.abs(w[ii])
-        if w_max == 0.0 or d_w_max / w_max < tol or n_iter == max_iter - 1:
-            # the biggest coordinate update of this iteration was smaller
-            # than the tolerance: check the duality gap as ultimate
-            # stopping criterion
-
-            XtA = np.dot(X.T, R) - beta * w
-            if positive:
-                dual_norm_XtA = np.max(n_features, XtA)
-            else:
-                dual_norm_XtA = np.max(np.abs(n_features, XtA))
-
-            R_norm2 = np.dot(R.T, R)
-
-            w_norm2 = np.dot(w.T, w)
-
-            if dual_norm_XtA > alpha:
-                const = alpha / dual_norm_XtA
-                A_norm2 = R_norm2 * (const ** 2)
-                gap = 0.5 * (R_norm2 + A_norm2)
-            else:
-                const = 1.0
-                gap = R_norm2
-
-            l1_norm = np.sum(np.abs(w))
-
-            gap += (alpha * l1_norm - const * np.dot(R.T, y) + 0.5
-                    * beta * (1 + const ** 2) * (w_norm2))
-
-            if gap < tol:
-                # return if we reached desired tolerance
-                break
-
-    return w, gap, tol, n_iter + 1
 
 
 @rt.fn_timer
@@ -209,8 +97,25 @@ def glmnet_own(
         iter_num=10,
         tol=0.001,
         positive=False):
+    """ GlmNet by koude
+
+    \min_{w} \frac{1}{2N} \sum^N_{i=1} (y_i-X_iw)^2 + \beta P_{\alpha}(w)
+    \P_{\alpha}(w) = (1-\alpha)\frac{1}{2} \|w\|^2_2 + \alpha\|w\|_1
+                   = \sum^P_{j=1} (\frac{1}{2}(1-\alpha)w_j^2 + \alpha w_j)
+
+    :param X:
+    :param y:
+    :param alpha:
+    :param beta:
+    :param zero_pos:
+    :param iter_num:
+    :param tol:
+    :param positive:
+    :return:
+    """
     sample_num, feature_num = X.shape
-    y = y.reshape([sample_num, 1])
+    y = preprocessing.scale(y.reshape([sample_num, 1]))
+    X = preprocessing.scale(X, axis=0)
     w = np.zeros((feature_num, 1))
     norm_cols_X = np.sum(np.power(X, 2), axis=0)
 
@@ -232,20 +137,23 @@ def glmnet_own(
             if w_i != 0:
                 r += w_i * X[:, feat_i].reshape([sample_num, 1])
 
-            tmp = np.dot(X[:, feat_i], r)
+            tmp = np.dot(X[:, feat_i], r) / sample_num + w_i
 
             if positive and tmp < 0:
                 w[feat_i] = 0
             else:
-                w[feat_i] = np.sign(
-                    tmp) * np.max(np.abs(tmp) - alpha, 0) / (norm_cols_X[feat_i] + beta)
+                # w[feat_i] = np.sign(
+                # tmp) * np.max(np.abs(tmp) - alpha, 0) / (norm_cols_X[feat_i]
+                # + beta)
+                w[feat_i] = np.sign(tmp) * np.max(np.abs(tmp),
+                                                  beta * alpha) / (1 + beta * (1 - alpha))
 
             if w[feat_i] != 0:
                 r -= w[feat_i] * X[:, feat_i].reshape([sample_num, 1])
 
-            d_w_ii = np.abs(w[feat_i] - w_i)
+            d_w_i = np.abs(w[feat_i] - w_i)
 
-            d_w_max = d_w_ii if d_w_ii > d_w_max else d_w_max
+            d_w_max = d_w_i if d_w_i > d_w_max else d_w_max
 
             w_max = np.abs(w[feat_i]) if np.abs(w[feat_i]) > w_max else w_max
 
@@ -253,3 +161,4 @@ def glmnet_own(
             break
 
     return w
+

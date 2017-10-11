@@ -38,3 +38,20 @@ Failed...
 I will try again tonight.
 
 ---
+
+2017-10-10
+
+I try to implement glmnet, and something wrong with it.
+Thinking y, and reading some papers about coordinate optimization.
+
+BTW, I'm learning how to write Cython.
+
+---
+
+2017-10-11
+
+Try again. Failed again.
+
+It's time to read paper carefully.
+
+---
