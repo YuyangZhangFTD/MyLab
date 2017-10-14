@@ -1,7 +1,7 @@
 import random as rd
 from scipy import sparse
 from collections import defaultdict
-import glmnet_py as glmnet
+# import glmnet_py as glmnet
 import RecTool as rt
 import numpy as np
 from sklearn import preprocessing
@@ -162,3 +162,13 @@ def glmnet_own(
 
     return w
 
+
+# test part
+import numpy as np
+
+X = np.random.random([10, 4])
+w = np.array([0, 1, 2, 3]).reshape(4, 1)
+y = np.dot(X, w)
+res = glmnet_own(X, y, alpha=0.5, beta=0.001, iter_num=1000, positive=True)
+print(res)
+print(w)
