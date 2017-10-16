@@ -61,3 +61,9 @@ It's time to read paper carefully.
 Update slim.
 
 ---
+
+2017-10-16
+
+Download dataset for ctr.
+
+---
