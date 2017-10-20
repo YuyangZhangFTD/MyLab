@@ -163,12 +163,61 @@ def glmnet_own(
     return w
 
 
+def l1_gd(w):
+    feature_num, _ = w.shape
+    gd = np.ones([feature_num, 1])
+    for i in range(feature_num):
+        if w[i] < 0:
+            gd *= -1
+    return gd
+        
+
+
+def slim_gd(
+        X,
+        y,
+        alpha,
+        beta,
+        zero_pos=None,
+        iter_num=10,
+        tol=0.001,
+        learning_rate=0.001,
+        positive=False):
+    
+    sample_num, feature_num = X.shape
+    w = np.zeros([feature_num, 1]) 
+   
+    all_X = X
+    all_y = y 
+ 
+    for iter_i in range(iter_num):
+        
+        index = np.random.choice(sample_num, feature_num)
+        X = all_X[index]
+        y = all_y[index]
+
+        print("iteration: "+str(iter_i))
+        hat_y = np.dot(X,w)
+        residual = y - hat_y
+
+        loss = 0.5 * np.dot(residual.T, residual) + beta * (1 - alpha) * 0.5 * np.dot(w.T, w) + beta * alpha * np.sum(np.abs(w))
+        print("loss: "+str(loss))
+        
+        gd = np.dot(X.T, residual) + beta * (1 - alpha) * w + beta * alpha * l1_gd(w)
+
+        w += gd * learning_rate
+        print("weight: ")
+        print(w)
+    pass
+
+
+
 # test part
 import numpy as np
 
 X = np.random.random([10, 4])
 w = np.array([0, 1, 2, 3]).reshape(4, 1)
 y = np.dot(X, w)
-res = glmnet_own(X, y, alpha=0.5, beta=0.001, iter_num=1000, positive=True)
-print(res)
-print(w)
+# res = glmnet_own(X, y, alpha=0.5, beta=0.001, iter_num=1000, positive=True)
+slim_gd(X, y, alpha=0, beta=0.5, iter_num=100, learning_rate=0.1)
+

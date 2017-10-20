@@ -23,8 +23,15 @@ with open(fp_train) as f:
         fwx[hour].write(
             line[0] + ',' + ','.join(line[2:])
         )
+        
+        # record feature
         for i in range(2, len(line)):
-            pass
+            # label key: header[i]
+            key = header[i]
+            value = line[i]
+            feature_dict[key].append(value) if value not in feature_dict[key] else continue
+            
+
         # write label file
         fwy[hour].write(
             ','.join(line[:2]) + '\n'

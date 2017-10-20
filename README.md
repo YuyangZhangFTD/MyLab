@@ -67,3 +67,13 @@ Update slim.
 Download dataset for ctr.
 
 ---
+
+2017-10-20
+
+I fix slim with sgd, and it works.
+
+And I find another way to train slim witk sklearn or GlmNet.
+
+I will update slim in surprise.
+
+---
