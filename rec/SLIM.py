@@ -21,18 +21,12 @@ def train(A):
 
     for j in range(feature_num):
         aj, Aj = A.lil_get_col_to_csc(j)
-        model = linear_model.ElasticNet(
-            alpha=0.01,
-            l1_ratio=0.5,
-            fit_intercept=False,
-            max_iter=100,
-            positive=True)
-        Aj = np.array(Aj)
-	# TODO: ElasticNet  do not support sparse matrix
-        model.fit(Aj, aj)
-        wj = model.coef_.reshape(feature_num - 1, 1)
-        W[:j, j] = wj[:j, 1]
-        W[j + 1:, j] = wj[j:, 1]
+        aj = aj.toarray().ravel()
+
+        alphas, coefs, __ = linear_model.enet_path(Aj, aj)
+
+        W[:j, j] = coefs[:j, -1].reshape(j, 1)
+        W[j + 1:, j] = coefs[j:, -1].reshape(feature_num - j - 1, 1)
     return W
 
 
@@ -42,3 +36,6 @@ if __name__ == "__main__":
     b, c = a.lil_get_col_to_csc(1)
     print(b.shape)
     print(c.shape)
+
+    b = lil_matrix(np.random.random([1000, 20]))
+    print(train(b))
