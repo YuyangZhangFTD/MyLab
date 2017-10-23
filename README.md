@@ -77,3 +77,12 @@ And I find another way to train slim with sklearn or GlmNet.
 I will update slim in surprise soon.
 
 ---
+
+2017-10-23
+
+Update SLIM for tiny matrix.
+
+ElasticNet in sklearn doesn't support sparse matrix.
+So, I will work on this problem and make it possible sooner.
+
+---

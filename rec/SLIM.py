@@ -28,6 +28,7 @@ def train(A):
             max_iter=100,
             positive=True)
         Aj = np.array(Aj)
+	# TODO: ElasticNet  do not support sparse matrix
         model.fit(Aj, aj)
         wj = model.coef_.reshape(feature_num - 1, 1)
         W[:j, j] = wj[:j, 1]
@@ -41,6 +42,3 @@ if __name__ == "__main__":
     b, c = a.lil_get_col_to_csc(1)
     print(b.shape)
     print(c.shape)
-    a = np.random.random([100, 80])
-    w = train(a)
-    print(w)
