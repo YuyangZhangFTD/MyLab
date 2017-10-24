@@ -13,6 +13,7 @@ from surprise import AlgoBase
 from surprise import Dataset
 from surprise import evaluate
 import slim_tool as st
+from MySurprise import *
 
 
 class MyOwnAlgorithm(AlgoBase):
@@ -30,18 +31,21 @@ class MyOwnAlgorithm(AlgoBase):
         # Here again: call base method before doing anything.
         AlgoBase.train(self, trainset)
 
+	# the mean value for selecting recommendation test set
+	self.the_mean = np.mean([r for (_, _, r) in self.trainset.all_ratings()])
+
         # Compute the average rating. We might as well use the
         # trainset.global_mean attribute ;)
         # self.the_mean = np.mean([r for (_, _, r) in
         #                          self.trainset.all_ratings()])
 
-        user_num = trainset.n_users
-        item_num = trainset.n_items
+        user_num = self.trainset.n_users
+        item_num = self.trainset.n_items
         rating = sparse.lil_matrix((user_num, item_num))
 
         print("rating shape:  " + str(rating.shape))
 
-        for u, i, r in trainset.all_ratings():
+        for u, i, r in self.trainset.all_ratings():
             rating[u, i] = r
 
         self.A = st.SparseMatrix((item_num, item_num))
@@ -58,9 +62,6 @@ class MyOwnAlgorithm(AlgoBase):
 
         self.estimator = self.A * self.W
 
-        print(self.estimator.shape)
-
-        print(self.estimator.toarray())
 
     def estimate(self, u, i):
 
@@ -71,7 +72,57 @@ class MyOwnAlgorithm(AlgoBase):
             return 3
 
 
+    def predict_topn(self, uid, iid, topn, verbose=False):
+	""" Not implement self.estimate
+
+	And generate recommendation list of a user here
+	"""
+	# Convert raw ids to inner ids
+        try:
+            iuid = self.trainset.to_inner_uid(uid)
+        except ValueError:
+            iuid = 'UKN__' + str(uid)
+        try:
+            iiid = self.trainset.to_inner_iid(iid)
+        except ValueError:
+            iiid = 'UKN__' + str(iid)
+
+	details = {}
+        try:
+            
+            user_rating = self.estimator[uid, :].toarray()
+
+            index_rating = [i, user_rating[i] for i in range(user_rating)]
+
+	    index_rating.sort(key=lambda x: -x[1])	    
+
+	    est_list = [x[0] for x in index_rating[:top]]
+
+            details['was_impossible'] = False
+
+	except PredictionImpossible as e:
+            est = []
+            details['was_impossible'] = True
+            details['reason'] = str(e)
+
+	pred = Prediction_topn(uid, iid, est_list, details)
+
+        if verbose:
+            print(pred)
+
+        return pred
+
+
+    def test_topn(self, testset, topn, verbose=False):
+        predictions = [self.predict_topn(uid,
+                                    iid,
+                                    topn,
+                                    verbose=verbose)
+                       for (uid, iid, r_ui_trans) in testset if r_ui_trans>self.the_mean]
+        return predictions
+
+
 data = Dataset.load_builtin('ml-100k')
 algo = MyOwnAlgorithm()
 
-evaluate(algo, data)
+evaluate_topn(algo, data, 10)

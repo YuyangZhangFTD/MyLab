@@ -32,7 +32,7 @@ class Prediction_topn(
 
     Args:
         uid: The (raw) user id
-        iid: The (raw) item id.
+        iid: The (raw) item id
         est_list (list): The list of iid which user may click
         details (dict): Stores additional details about the prediction that
         might be useful for later analysis.
@@ -40,9 +40,16 @@ class Prediction_topn(
 
     __slots__ = ()  # for memory saving purpose
 
+
     def __str__(self):
 
         return "TODO"
+
+    
+def to_topn_format(prediction):
+	""" transform Prediction to Prediction_topn
+	"""
+    topn = 	
 
 
 def accuracy_topn(predictions, verbose=Ture):
