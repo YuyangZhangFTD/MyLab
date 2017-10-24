@@ -40,7 +40,6 @@ class Prediction_topn(
 
     __slots__ = ()  # for memory saving purpose
 
-
     def __str__(self):
 
         return "TODO"
@@ -73,17 +72,16 @@ def accuracy_topn(predictions_topn, verbose=Ture):
     # TODO: evaluate hr and arhr
     hr = 0
     arhr = 0
- 
+
     test_user = set()
 
     for uid, iiid, est_list, __ in predictions_topn:
 
-	test_user.add(uid)
+        test_user.add(uid)
 
-	if iiid in est_list:
-	    hr += 1
-            arhr += 1/(est_list.index(iiid) + 1)
-    
+        if iiid in est_list:
+            hr += 1
+            arhr += 1 / (est_list.index(iiid) + 1)
 
     hr /= len(test_user)
     arhr /= len(test_user)
@@ -95,7 +93,16 @@ def accuracy_topn(predictions_topn, verbose=Ture):
     return hr, arhr
 
 
-def evaluate_topn(algo, data, topn, measures=['hr', 'arhr'],with_dump=False, dump_dir=None, verbose=1):
+def evaluate_topn(
+        algo,
+        data,
+        topn,
+        measures=[
+            'hr',
+            'arhr'],
+    with_dump=False,
+    dump_dir=None,
+        verbose=1):
     """ Evaluate the performance of the algorithm on the given data for top-N recommendation.
 
     Args:
@@ -119,7 +126,7 @@ def evaluate_topn(algo, data, topn, measures=['hr', 'arhr'],with_dump=False, dum
         contains one entry per fold.
     """
 
-    performances = CaseInsensitiveDefaultDict(list)    
+    performances = CaseInsensitiveDefaultDict(list)
 
     for fold_i, (train, testset) in enumerate(data.folds()):
 
@@ -128,25 +135,25 @@ def evaluate_topn(algo, data, topn, measures=['hr', 'arhr'],with_dump=False, dum
             print('Fold ' + str(fold_i + 1))
 
         algo.train(trainset)
-        predictions_topn = algo.test_topn(testset, topn, verbose=(verbose == 2))
+        predictions_topn = algo.test_topn(
+            testset, topn, verbose=(verbose == 2))
 
-        hr, arhr = accuracy_topn(predictions_topn)	
+        hr, arhr = accuracy_topn(predictions_topn)
 
         performances['hr'].append(hr)
         performances['arhr'].append(arhr)
 
-	# TODO
-	if with_dump:
-	    pass
-
+        # TODO
+        if with_dump:
+            pass
 
     if verbose:
 
-	print('-' * 12)
         print('-' * 12)
-	for measure in measures:
+        print('-' * 12)
+        for measure in measures:
             print('Mean {0:4s}: {1:1.4f}'.format(
                   measure, np.mean(performances[measure])))
-	print('-' * 12)
+        print('-' * 12)
 
     return performances
