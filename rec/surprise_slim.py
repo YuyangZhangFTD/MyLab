@@ -90,7 +90,7 @@ class MyOwnAlgorithm(AlgoBase):
 	details = {}
         try:
             
-            user_rating = self.estimator[uid, :].toarray()
+            user_rating = self.estimator[iuid, :].toarray()
 
             index_rating = [i, user_rating[i] for i in range(user_rating)]
 
@@ -105,7 +105,7 @@ class MyOwnAlgorithm(AlgoBase):
             details['was_impossible'] = True
             details['reason'] = str(e)
 
-	pred = Prediction_topn(uid, iid, est_list, details)
+	pred = Prediction_topn(uid, iiid, est_list, details)
 
         if verbose:
             print(pred)
@@ -114,12 +114,12 @@ class MyOwnAlgorithm(AlgoBase):
 
 
     def test_topn(self, testset, topn, verbose=False):
-        predictions = [self.predict_topn(uid,
+        predictions_topn = [self.predict_topn(uid,
                                     iid,
                                     topn,
                                     verbose=verbose)
                        for (uid, iid, r_ui_trans) in testset if r_ui_trans>self.the_mean]
-        return predictions
+        return predictions_topn
 
 
 data = Dataset.load_builtin('ml-100k')
