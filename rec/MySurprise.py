@@ -21,6 +21,26 @@ DONE:
 
 """
 from surprise import *
+from collections import namedtuple, defaultdict
+import numpy as np
+
+
+class CaseInsensitiveDefaultDict(defaultdict):
+    """From here:
+        http://stackoverflow.com/questions/2082152/case-insensitive-dictionary.
+
+        As pointed out in the comments, this only covers a few cases and we
+        should override a lot of other methods, but oh well...
+
+        Used for the returned dict, so that users can use perf['RMSE'] or
+        perf['rmse'] indifferently.
+    """
+
+    def __setitem__(self, key, value):
+        super(CaseInsensitiveDefaultDict, self).__setitem__(key.lower(), value)
+
+    def __getitem__(self, key):
+        return super(CaseInsensitiveDefaultDict, self).__getitem__(key.lower())
 
 
 class Prediction_topn(
@@ -45,7 +65,7 @@ class Prediction_topn(
         return "TODO"
 
 
-def accuracy_topn(predictions_topn, verbose=Ture):
+def accuracy_topn(predictions_topn, verbose=True):
     """ Compute top-N accuracy
 
     .. math::
@@ -75,11 +95,12 @@ def accuracy_topn(predictions_topn, verbose=Ture):
 
     test_user = set()
 
+    test_user.add(uid)
+    
     for uid, iiid, est_list, __ in predictions_topn:
 
-        test_user.add(uid)
-
-        if iiid in est_list:
+        if iiid in est_list: 
+    
             hr += 1
             arhr += 1 / (est_list.index(iiid) + 1)
 
@@ -128,7 +149,7 @@ def evaluate_topn(
 
     performances = CaseInsensitiveDefaultDict(list)
 
-    for fold_i, (train, testset) in enumerate(data.folds()):
+    for fold_i, (trainset, testset) in enumerate(data.folds()):
 
         if verbose:
             print('-' * 12)

@@ -128,4 +128,4 @@ class MyOwnAlgorithm(AlgoBase):
 data = Dataset.load_builtin('ml-100k')
 algo = MyOwnAlgorithm()
 
-evaluate_topn(algo, data, 10)
+evaluate_topn(algo, data, 50)

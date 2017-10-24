@@ -208,3 +208,21 @@ Mean RMSE: 2.7686
 Mean MAE : 2.5296
 ------------
 ------------
+------------
+Fold 1
+rating shape:  (943, 1650)
+HR: 1.0000
+ARHR: 1.0000
+------------
+Fold 2
+rating shape:  (943, 1653)
+HR: 1.0000
+ARHR: 1.0000
+------------
+Fold 3
+rating shape:  (943, 1650)
+HR: 1.0000
+ARHR: 1.0000
+------------
+Fold 4
+rating shape:  (943, 1651)
