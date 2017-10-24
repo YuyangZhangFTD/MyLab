@@ -48,7 +48,7 @@ class MyOwnAlgorithm(AlgoBase):
 
         self.W = st.train(
             self.A,
-            l1_ratio=1,
+            l1_ratio=0.1,
             eps=1e-4,
             n_alphas=100,
             max_iter=100)
@@ -59,6 +59,8 @@ class MyOwnAlgorithm(AlgoBase):
         self.estimator = self.A * self.W
 
         print(self.estimator.shape)
+
+        print(self.estimator.toarray())
 
     def estimate(self, u, i):
 
