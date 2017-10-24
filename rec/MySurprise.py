@@ -9,7 +9,9 @@ Target:
 
 TODO:
 
-1.
+1. Top-N accuracy, hr and arhr.
+
+2. The evalutation method of top-N recommendation.
 
 DONE:
 
@@ -110,7 +112,8 @@ def evaluate_topn(algo, data, topn, with_dump=False, dump_dir=None, verbose=1):
 
         algo.train(trainset)
         predictions_topn = algo.test_topn(testset, verbose=(verbose == 2))
-
+	
+	# TODO
         accuracy_topn()
 
     pass
