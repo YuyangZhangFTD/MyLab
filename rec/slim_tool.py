@@ -14,7 +14,14 @@ class SparseMatrix(lil_matrix):
         return csc_matrix(new_col), csc_matrix(new_mat)
 
 
-def train(A):
+def train(
+        A,
+        l1_ratio=0.5,
+        eps=1e-3,
+        n_alphas=100,
+        alphas=None,
+        positive=True,
+        max_iter=1000):
     sample_num, feature_num = A.shape
     W = lil_matrix((feature_num, feature_num))
     A = SparseMatrix(A)
@@ -23,7 +30,8 @@ def train(A):
         aj, Aj = A.lil_get_col_to_csc(j)
         aj = aj.toarray().ravel()
 
-        alphas, coefs, __ = linear_model.enet_path(Aj, aj)
+        alphas, coefs, __ = linear_model.enet_path(
+            Aj, aj, l1_ratio=l1_ratio, eps=eps, n_alphas=n_alphas, alphas=alphas, positive=positive, max_iter=max_iter)
 
         W[:j, j] = coefs[:j, -1].reshape(j, 1)
         W[j + 1:, j] = coefs[j:, -1].reshape(feature_num - j - 1, 1)

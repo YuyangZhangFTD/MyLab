@@ -1,0 +1,210 @@
+Evaluating RMSE, MAE of algorithm MyOwnAlgorithm.
+
+------------
+Fold 1
+error at: u->32  i->UKN__1403
+error at: u->181  i->UKN__1584
+error at: u->41  i->UKN__1665
+error at: u->45  i->UKN__1653
+error at: u->41  i->UKN__1666
+error at: u->146  i->UKN__1403
+error at: u->194  i->UKN__1390
+error at: u->389  i->UKN__1403
+error at: u->194  i->UKN__1348
+error at: u->461  i->UKN__1236
+error at: u->104  i->UKN__1403
+error at: u->32  i->UKN__1630
+error at: u->181  i->UKN__1575
+error at: u->281  i->UKN__1655
+error at: u->41  i->UKN__1644
+error at: u->41  i->UKN__1390
+error at: u->194  i->UKN__1349
+error at: u->162  i->UKN__1616
+error at: u->32  i->UKN__1629
+error at: u->181  i->UKN__1572
+error at: u->409  i->UKN__1657
+error at: u->337  i->UKN__1629
+error at: u->2  i->UKN__1604
+error at: u->489  i->UKN__1613
+error at: u->233  i->UKN__814
+error at: u->32  i->UKN__1644
+error at: u->557  i->UKN__1678
+error at: u->194  i->UKN__1325
+error at: u->41  i->UKN__1670
+error at: u->32  i->UKN__1650
+error at: u->60  i->UKN__1593
+error at: u->262  i->UKN__1414
+error at: u->256  i->UKN__1525
+error at: u->798  i->UKN__1624
+error at: u->328  i->UKN__1673
+error at: u->181  i->UKN__1569
+error at: u->557  i->UKN__1680
+error at: u->66  i->UKN__1498
+error at: u->194  i->UKN__1352
+error at: u->62  i->UKN__1458
+RMSE: 2.7676
+MAE:  2.5269
+------------
+Fold 2
+error at: u->205  i->UKN__1586
+error at: u->46  i->UKN__1635
+error at: u->28  i->UKN__1646
+error at: u->218  i->UKN__1599
+error at: u->113  i->UKN__1510
+error at: u->46  i->UKN__1646
+error at: u->30  i->UKN__913
+error at: u->188  i->UKN__1341
+error at: u->188  i->UKN__1350
+error at: u->228  i->UKN__1679
+error at: u->196  i->UKN__1542
+error at: u->46  i->UKN__1465
+error at: u->188  i->UKN__1366
+error at: u->188  i->UKN__1364
+error at: u->237  i->UKN__1515
+error at: u->722  i->UKN__1310
+error at: u->57  i->UKN__1457
+error at: u->431  i->UKN__1626
+error at: u->546  i->UKN__1674
+error at: u->71  i->UKN__1681
+error at: u->234  i->UKN__1682
+error at: u->205  i->UKN__1559
+error at: u->238  i->UKN__1507
+error at: u->46  i->UKN__913
+error at: u->205  i->UKN__1581
+error at: u->188  i->UKN__1340
+error at: u->722  i->UKN__1309
+error at: u->30  i->UKN__830
+error at: u->30  i->UKN__852
+error at: u->708  i->UKN__1465
+error at: u->205  i->UKN__1576
+error at: u->47  i->UKN__1505
+error at: u->188  i->UKN__1373
+error at: u->30  i->UKN__857
+error at: u->307  i->UKN__1492
+error at: u->205  i->UKN__1579
+error at: u->8  i->UKN__1542
+error at: u->205  i->UKN__1587
+error at: u->264  i->UKN__1619
+error at: u->57  i->UKN__1461
+error at: u->660  i->UKN__1465
+error at: u->169  i->UKN__1350
+error at: u->358  i->UKN__1663
+RMSE: 2.7647
+MAE:  2.5257
+------------
+Fold 3
+error at: u->205  i->UKN__1571
+error at: u->189  i->UKN__677
+error at: u->205  i->UKN__1582
+error at: u->211  i->UKN__1661
+error at: u->258  i->UKN__1156
+error at: u->205  i->UKN__1568
+error at: u->487  i->UKN__1675
+error at: u->46  i->UKN__1641
+error at: u->192  i->UKN__1502
+error at: u->124  i->UKN__1362
+error at: u->46  i->UKN__1636
+error at: u->73  i->UKN__1146
+error at: u->188  i->UKN__1339
+error at: u->205  i->UKN__1580
+error at: u->722  i->UKN__1308
+error at: u->188  i->UKN__1363
+error at: u->5  i->UKN__1601
+error at: u->46  i->UKN__1651
+error at: u->205  i->UKN__1561
+error at: u->46  i->UKN__1633
+error at: u->205  i->UKN__1308
+error at: u->168  i->UKN__1595
+error at: u->89  i->UKN__1660
+error at: u->358  i->UKN__1668
+error at: u->48  i->UKN__1502
+error at: u->133  i->UKN__1621
+error at: u->115  i->UKN__1533
+error at: u->342  i->UKN__1146
+error at: u->188  i->UKN__1362
+error at: u->358  i->UKN__1669
+error at: u->358  i->UKN__1667
+error at: u->205  i->UKN__1146
+error at: u->57  i->UKN__1452
+error at: u->55  i->UKN__1603
+error at: u->46  i->UKN__1645
+error at: u->249  i->UKN__711
+RMSE: 2.7752
+MAE:  2.5381
+------------
+Fold 4
+error at: u->57  i->UKN__1447
+error at: u->205  i->UKN__1583
+error at: u->27  i->UKN__1476
+error at: u->205  i->UKN__1548
+error at: u->188  i->UKN__1374
+error at: u->188  i->UKN__1329
+error at: u->418  i->UKN__1374
+error at: u->46  i->UKN__1637
+error at: u->307  i->UKN__1493
+error at: u->601  i->UKN__1606
+error at: u->274  i->UKN__1467
+error at: u->501  i->UKN__1654
+error at: u->40  i->UKN__1625
+error at: u->168  i->UKN__1596
+error at: u->57  i->UKN__1460
+error at: u->194  i->UKN__1677
+error at: u->89  i->UKN__1659
+error at: u->205  i->UKN__1570
+error at: u->205  i->UKN__1562
+error at: u->8  i->UKN__1543
+error at: u->487  i->UKN__1676
+error at: u->46  i->UKN__1632
+error at: u->46  i->UKN__1640
+error at: u->57  i->UKN__1453
+error at: u->139  i->UKN__1627
+error at: u->94  i->UKN__1467
+error at: u->188  i->UKN__1343
+error at: u->307  i->UKN__1494
+error at: u->46  i->UKN__1647
+error at: u->46  i->UKN__1638
+error at: u->205  i->UKN__1564
+RMSE: 2.7681
+MAE:  2.5295
+------------
+Fold 5
+error at: u->205  i->UKN__1557
+error at: u->205  i->UKN__1577
+error at: u->114  i->UKN__1201
+error at: u->80  i->UKN__1130
+error at: u->205  i->UKN__1567
+error at: u->283  i->UKN__1520
+error at: u->309  i->UKN__1235
+error at: u->205  i->UKN__1565
+error at: u->34  i->UKN__1482
+error at: u->189  i->UKN__599
+error at: u->593  i->UKN__1618
+error at: u->46  i->UKN__1648
+error at: u->205  i->UKN__1519
+error at: u->25  i->UKN__1536
+error at: u->205  i->UKN__1546
+error at: u->161  i->UKN__1345
+error at: u->523  i->UKN__1671
+error at: u->46  i->UKN__1634
+error at: u->46  i->UKN__1649
+error at: u->570  i->UKN__1372
+error at: u->151  i->UKN__1372
+error at: u->313  i->UKN__1122
+error at: u->205  i->UKN__1563
+error at: u->440  i->UKN__1526
+error at: u->188  i->UKN__1345
+error at: u->188  i->UKN__1320
+error at: u->205  i->UKN__1574
+error at: u->634  i->UKN__1614
+error at: u->283  i->UKN__1519
+error at: u->188  i->UKN__1372
+error at: u->307  i->UKN__1486
+error at: u->205  i->UKN__1566
+RMSE: 2.7671
+MAE:  2.5280
+------------
+------------
+Mean RMSE: 2.7686
+Mean MAE : 2.5296
+------------
+------------
