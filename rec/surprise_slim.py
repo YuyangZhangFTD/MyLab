@@ -91,16 +91,17 @@ class MyOwnAlgorithm(AlgoBase):
 
             user_rating = self.estimator[iuid, :].toarray()
 
-            index_rating = [i, user_rating[i] for i in range(len(user_rating))]
+            index_rating = [(i, user_rating[i])
+                            for i in range(len(user_rating))]
 
             index_rating.sort(key=lambda x: -x[1])
 
-            est_list = [x[0] for x in index_rating[:top]]
+            est_list = [x[0] for x in index_rating[:topn]]
 
             details['was_impossible'] = False
 
         except PredictionImpossible as e:
-            est = []
+            est_list = []
             details['was_impossible'] = True
             details['reason'] = str(e)
 
