@@ -28,6 +28,10 @@ def train(
 
     for j in range(feature_num):
         aj, Aj = A.lil_get_col_to_csc(j)
+
+        if aj.nnz == 0:
+            continue
+
         aj = aj.toarray().ravel()
 
         alphas, coefs, __ = linear_model.enet_path(

@@ -75,7 +75,7 @@ class MySVD(SVD):
                 verbose=verbose) for (
                 uid,
                 iid,
-                r_ui_trans) in testset if r_ui_trans > 3]
+                r_ui_trans) in testset if r_ui_trans > 4]
         return predictions_topn
 
 

@@ -18,25 +18,24 @@ from MySurprise import *
 
 class MyOwnAlgorithm(AlgoBase):
 
-    def __init__(self):
+    def __init__(self, l1_ratio=0.1, eps=1e-3, n_alphas=10, max_iter=100):
 
         # Always call base method before doing anything.
         AlgoBase.__init__(self)
-
         self.W = None
         self.A = None
         self.trainset = None
         self.the_mean = 0
         self.trainset = None
+        self.l1_ratio = l1_ratio
+        self.eps = eps
+        self.n_alphas = n_alphas
+        self.max_iter = max_iter
 
     def train(self, trainset):
 
         # Here again: call base method before doing anything.
         AlgoBase.train(self, trainset)
-
-        # the mean value for selecting recommendation test set
-        self.the_mean = np.mean(
-            [r for (_, _, r) in self.trainset.all_ratings()])
 
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
@@ -49,10 +48,10 @@ class MyOwnAlgorithm(AlgoBase):
 
         self.W = st.train(
             self.A,
-            l1_ratio=0.1,
-            eps=1e-4,
-            n_alphas=100,
-            max_iter=100)
+            l1_ratio=self.l1_ratio,
+            eps=self.eps,
+            n_alphas=self.n_alphas,
+            max_iter=self.max_iter)
 
         self.A = sparse.csc_matrix(self.A)
         self.W = sparse.csc_matrix(self.W)
@@ -117,11 +116,12 @@ class MyOwnAlgorithm(AlgoBase):
                 verbose=verbose) for (
                 uid,
                 iid,
-                r_ui_trans) in testset if r_ui_trans > self.the_mean]
+                r_ui_trans) in testset if r_ui_trans > 4]
         return predictions_topn
 
 
-data = Dataset.load_builtin('ml-100k')
-algo = MyOwnAlgorithm()
+# data = Dataset.load_builtin('ml-100k')
+# algo = MyOwnAlgorithm(l1_ratio=0.9, eps=1e-3, n_alphas=100, max_iter=1000)
 
-evaluate_topn(algo, data, 50)
+# evaluate(algo, data)
+# evaluate_topn(algo, data, 10)
