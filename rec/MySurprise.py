@@ -95,12 +95,12 @@ def accuracy_topn(predictions_topn, verbose=True):
 
     test_user = set()
 
-    test_user.add(uid)
-    
     for uid, iiid, est_list, __ in predictions_topn:
 
-        if iiid in est_list: 
-    
+        test_user.add(uid)
+
+        if iiid in est_list:
+
             hr += 1
             arhr += 1 / (est_list.index(iiid) + 1)
 

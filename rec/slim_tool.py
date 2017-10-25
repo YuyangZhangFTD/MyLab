@@ -35,6 +35,7 @@ def train(
 
         W[:j, j] = coefs[:j, -1].reshape(j, 1)
         W[j + 1:, j] = coefs[j:, -1].reshape(feature_num - j - 1, 1)
+
     return W
 
 

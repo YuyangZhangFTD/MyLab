@@ -25,6 +25,9 @@ class MyOwnAlgorithm(AlgoBase):
 
         self.W = None
         self.A = None
+        self.trainset = None
+        self.the_mean = 0
+        self.trainset = None
 
     def train(self, trainset):
 
@@ -35,21 +38,14 @@ class MyOwnAlgorithm(AlgoBase):
         self.the_mean = np.mean(
             [r for (_, _, r) in self.trainset.all_ratings()])
 
-        # Compute the average rating. We might as well use the
-        # trainset.global_mean attribute ;)
-        # self.the_mean = np.mean([r for (_, _, r) in
-        #                          self.trainset.all_ratings()])
-
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
         rating = sparse.lil_matrix((user_num, item_num))
 
-        print("rating shape:  " + str(rating.shape))
-
         for u, i, r in self.trainset.all_ratings():
             rating[u, i] = r
 
-        self.A = st.SparseMatrix((item_num, item_num))
+        self.A = st.SparseMatrix(rating)
 
         self.W = st.train(
             self.A,
