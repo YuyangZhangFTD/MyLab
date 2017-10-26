@@ -3,8 +3,6 @@ This module descibes how to build your own prediction algorithm. Please refer
 to User Guide for more insight.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import numpy as np
 from scipy import sparse
@@ -35,6 +33,7 @@ class MyOwnAlgorithm(AlgoBase):
         self.eps = eps
         self.max_iter = max_iter
         self.positive = positive
+        self.estimator = None
 
     def train(self, trainset):
 
@@ -63,7 +62,8 @@ class MyOwnAlgorithm(AlgoBase):
             Aj = Aj.tocsc()
 
             __, coefs, __ = linear_model.enet_path(Aj, aj, l1_ratio=self.l1_ratio, eps=self.eps,
-                                                   n_alphas=self.n_alphas, alphas=self.alphas, positive=self.positive, max_iter=self.max_iter)
+                                                   n_alphas=self.n_alphas, alphas=self.alphas,
+                                                   positive=self.positive, max_iter=self.max_iter)
 
             W[:, j] = coefs.reshape(item_num, 1)
 
