@@ -18,7 +18,13 @@ from MySurprise import *
 
 class MyOwnAlgorithm(AlgoBase):
 
-    def __init__(self, l1_ratio=0.1, eps=1e-3, n_alphas=10, max_iter=100):
+    def __init__(
+            self,
+            l1_ratio=0.1,
+            eps=1e-3,
+            n_alphas=10,
+            alphas=None,
+            max_iter=100):
 
         # Always call base method before doing anything.
         AlgoBase.__init__(self)
@@ -31,6 +37,7 @@ class MyOwnAlgorithm(AlgoBase):
         self.eps = eps
         self.n_alphas = n_alphas
         self.max_iter = max_iter
+        self.alphas = alphas
 
     def train(self, trainset):
 
@@ -42,7 +49,8 @@ class MyOwnAlgorithm(AlgoBase):
         rating = sparse.lil_matrix((user_num, item_num))
 
         for u, i, r in self.trainset.all_ratings():
-            rating[u, i] = r
+            if r > 3:
+                rating[u, i] = r
 
         self.A = st.SparseMatrix(rating)
 
@@ -51,6 +59,7 @@ class MyOwnAlgorithm(AlgoBase):
             l1_ratio=self.l1_ratio,
             eps=self.eps,
             n_alphas=self.n_alphas,
+            alphas=self.alphas,
             max_iter=self.max_iter)
 
         self.A = sparse.csc_matrix(self.A)
@@ -116,12 +125,18 @@ class MyOwnAlgorithm(AlgoBase):
                 verbose=verbose) for (
                 uid,
                 iid,
-                r_ui_trans) in testset if r_ui_trans > 4]
+                r_ui_trans) in testset if r_ui_trans > 3]
         return predictions_topn
 
 
-# data = Dataset.load_builtin('ml-100k')
-# algo = MyOwnAlgorithm(l1_ratio=0.9, eps=1e-3, n_alphas=100, max_iter=1000)
+if __name__ == '__main__':
+    data = Dataset.load_builtin('ml-100k')
+    algo = MyOwnAlgorithm(
+        l1_ratio=1,
+        eps=1e-3,
+        n_alphas=100,
+        # alphas=[10],
+        max_iter=10000)
 
-# evaluate(algo, data)
-# evaluate_topn(algo, data, 10)
+    # evaluate(algo, data)
+    evaluate_topn(algo, data, 10)

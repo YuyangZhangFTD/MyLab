@@ -12,11 +12,8 @@ class MySVD(SVD):
 
         SVD.train(self, trainset)
 
-        self.the_mean = np.mean(
-            [r for (_, _, r) in self.trainset.all_ratings()])
 
     def predict_topn(self, uid, iid, topn, verbose=False):
-
         try:
             iuid = self.trainset.to_inner_uid(uid)
         except ValueError:
@@ -106,10 +103,11 @@ def get_top_n(predictions, n=10):
     return top_n
 
 
-data = Dataset.load_builtin('ml-100k')
-algo = MySVD()
-evaluate_topn(algo, data, 20)
+if __name__ == '__main__':
 
+    data = Dataset.load_builtin('ml-100k')
+    algo = MySVD()
+    evaluate_topn(algo, data, 30)
 
 
 
