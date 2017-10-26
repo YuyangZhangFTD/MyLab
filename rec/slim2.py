@@ -9,6 +9,7 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 from scipy import sparse
 from sklearn import linear_model
+from MySurprise import *
 
 from surprise import AlgoBase
 from surprise import Dataset
@@ -17,86 +18,97 @@ from surprise import evaluate
 
 class MyOwnAlgorithm(AlgoBase):
 
-    def __init__(self):
+    def __init__(
+            self,
+            l1_ratio=0.5,
+            n_alphas=10,
+            alphas=None,
+            eps=1e-3,
+            max_iter=1000,
+            positive=True):
 
         # Always call base method before doing anything.
         AlgoBase.__init__(self)
+        self.l1_ratio = l1_ratio
+        self.n_alphas = n_alphas
+        self.alphas = alphas
+        self.eps = eps
+        self.max_iter = max_iter
+        self.positive = positive
 
     def train(self, trainset):
 
         # Here again: call base method before doing anything.
         AlgoBase.train(self, trainset)
 
-        user_num = self.trainset.n_user
-        item_num = self.trainset.n_item
+        user_num = self.trainset.n_users
+        item_num = self.trainset.n_items
         A = sparse.lil_matrix((user_num, item_num))
 
         the_mean = np.mean([r for (_, _, r) in
-                                 self.trainset.all_ratings()])
+                            self.trainset.all_ratings()])
 
-        for u, i, r in trainset.all_rating():
-	    # A[u, i] = r
+        for u, i, r in trainset.all_ratings():
+            # A[u, i] = r
             if r > the_mean:
-	        A[u, i] = 1
+                A[u, i] = 1
 
         W = sparse.lil_matrix((item_num, item_num))
 
-	for j in range(item_num):
+        for j in range(item_num):
 
-	    aj = sparse.csc_matrix(A.getcol(j))
-	    Aj = A.copy()
-	    Aj[:, j] = 0
-	    Aj = Aj.tocsc()
+            aj = A.getcol(j).toarray()
+            Aj = A.copy()
+            Aj[:, j] = 0
+            Aj = Aj.tocsc()
 
-	    __, coefs, __ = linear_model.enet_path(Aj, aj, l1_ratio=l1_ratio, eps=eps, n_alphas=n_alphas, alphas=alphas, positive=positive, max_iter=max_iter))
+            __, coefs, __ = linear_model.enet_path(Aj, aj, l1_ratio=self.l1_ratio, eps=self.eps,
+                                                   n_alphas=self.n_alphas, alphas=self.alphas, positive=self.positive, max_iter=self.max_iter)
 
-	    W[:, j]=coefs.reshape(item_num, 1)
+            W[:, j] = coefs.reshape(item_num, 1)
 
-	self.estimator=A.tocsc() * W.tocsc()
-
+        self.estimator = A.tocsc() * W.tocsc()
 
     def estimate(self, u, i):
 
-	print("the output is mean value")
+        print("the output is mean value")
         return self.the_mean
 
-
-
-    def predict_topn(self, uid, iid, t uidopn, verbose = False):
+    def predict_topn(self, uid, iid, topn, verbose=False):
         """ Not implement self.estimate
 
         And generate recommendation list of a user here
         """
         # Convert raw ids to inner ids
         try:
-            iuid=self.trainset.to_inner_uid(uid)
+            iuid = self.trainset.to_inner_uid(uid)
         except ValueError:
-            iuid='UKN__' + str(uid)
+            iuid = 'UKN__' + str(uid)
         try:
-            iiid=self.trainset.to_inner_iid(iid)
+            iiid = self.trainset.to_inner_iid(iid)
         except ValueError:
-            iiid='UKN__' + str(iid)
+            iiid = 'UKN__' + str(iid)
 
-        details={}
+        details = {}
         try:
 
-            user_rating=self.estimator[iuid, :].toarray()
+            user_rating = self.estimator[iuid, :].toarray()
 
-            index_rating=[(i, user_rating[i])
+            index_rating = [(i, user_rating[i])
                             for i in range(len(user_rating))]
 
             index_rating.sort(key=lambda x: -x[1])
 
-            est_list=[x[0] for x in index_rating[:topn]]
+            est_list = [x[0] for x in index_rating[:topn]]
 
-            details['was_impossible']=False
+            details['was_impossible'] = False
 
         except PredictionImpossible as e:
-            est_list=[]
-            details['was_impossible']=True
-            details['reason']=str(e)
+            est_list = []
+            details['was_impossible'] = True
+            details['reason'] = str(e)
 
-        pred=Prediction_topn(uid, iiid, est_list, details)
+        pred = Prediction_topn(uid, iiid, est_list, details)
 
         if verbose:
             print(pred)
@@ -104,7 +116,7 @@ class MyOwnAlgorithm(AlgoBase):
         return pred
 
     def test_topn(self, testset, topn, verbose=False):
-        predictions_topn=[
+        predictions_topn = [
             self.predict_topn(
                 uid,
                 iid,
@@ -117,13 +129,14 @@ class MyOwnAlgorithm(AlgoBase):
 
 
 if __name__ == '__main__':
-    data= Dataset.load_builtin('ml-100k')
-    algo= MyOwnAlgorithm(
-        l1_ratio = 1,
-        eps = 1e-3,
-        n_alphas = 100,
+    data = Dataset.load_builtin('ml-100k')
+    algo = MyOwnAlgorithm(
+        l1_ratio=1,
+        eps=1e-3,
+        n_alphas=100,
         # alphas=[10],
-        max_iter = 10000)
+        max_iter=10000,
+        positive=True)
 
     # evaluate(algo, data)
     evaluate_topn(algo, data, 10)
