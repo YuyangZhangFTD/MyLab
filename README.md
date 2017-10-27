@@ -86,3 +86,27 @@ ElasticNet in sklearn doesn't support sparse matrix.
 So, I will work on this problem and make it possible sooner.
 
 ---
+
+2017-10-26
+
+I've work out the problem about slim with sklearn.
+But the result of top-N recommendation is bad.
+I'm going on to work on it.
+
+---
+
+2017-10-27
+
+Still working on slim.
+
+And the problem is still there.
+
+Sad.
+
+---
+
+
+
+
+
+
