@@ -56,7 +56,7 @@ class MyOwnAlgorithm(AlgoBase):
 
         for j in range(item_num):
 
-            aj = A.getcol(j).toarray()
+            aj = A.getcol(j).toarray().ravel()
             Aj = A.copy()
             Aj[:, j] = 0
             Aj = Aj.tocsc()
@@ -65,7 +65,7 @@ class MyOwnAlgorithm(AlgoBase):
                                                    n_alphas=self.n_alphas, alphas=self.alphas,
                                                    positive=self.positive, max_iter=self.max_iter)
 
-            W[:, j] = coefs.reshape(item_num, 1)
+            W[:, j] = coefs[:,-1].reshape(item_num, 1)
 
         self.estimator = A.tocsc() * W.tocsc()
 

@@ -24,6 +24,7 @@ class MyOwnAlgorithm(AlgoBase):
             eps=1e-3,
             n_alphas=10,
             alphas=None,
+            positive=True,
             max_iter=100):
 
         # Always call base method before doing anything.
@@ -38,6 +39,7 @@ class MyOwnAlgorithm(AlgoBase):
         self.n_alphas = n_alphas
         self.max_iter = max_iter
         self.alphas = alphas
+        self.positive = positive
 
     def train(self, trainset):
 
@@ -60,6 +62,7 @@ class MyOwnAlgorithm(AlgoBase):
             eps=self.eps,
             n_alphas=self.n_alphas,
             alphas=self.alphas,
+            positive=self.positive,
             max_iter=self.max_iter)
 
         self.A = sparse.csc_matrix(self.A)
@@ -136,6 +139,7 @@ if __name__ == '__main__':
         eps=1e-3,
         n_alphas=100,
         # alphas=[10],
+        positive=True,
         max_iter=10000)
 
     # evaluate(algo, data)
