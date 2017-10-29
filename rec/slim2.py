@@ -65,7 +65,7 @@ class MyOwnAlgorithm(AlgoBase):
                                                    n_alphas=self.n_alphas, alphas=self.alphas,
                                                    positive=self.positive, max_iter=self.max_iter)
 
-            W[:, j] = coefs[:,-1].reshape(item_num, 1)
+            W[:, j] = coefs[:, 5].reshape(item_num, 1)
 
         self.estimator = A.tocsc() * W.tocsc()
 
@@ -133,9 +133,9 @@ if __name__ == '__main__':
     algo = MyOwnAlgorithm(
         l1_ratio=1,
         eps=1e-3,
-        n_alphas=100,
+        n_alphas=10,
         # alphas=[10],
-        max_iter=10000,
+        max_iter=5000,
         positive=True)
 
     # evaluate(algo, data)
