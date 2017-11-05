@@ -179,7 +179,7 @@ def slim_gd(
         beta=1,
         zero_pos=None,
         iter_num=10,
-        tol=0.001,
+        tol=0.01,
         learning_rate=0.001,
         positive=False):
 
@@ -222,4 +222,4 @@ if __name__ == '__main__':
     w = np.array([0, 1, 2, 3]).reshape(4, 1)
     y = np.dot(X, w)
     # res = glmnet_own(X, y, alpha=0.5, beta=0.001, iter_num=1000, positive=True)
-    slim_gd(X, y, alpha=0, beta=0.5, iter_num=100, learning_rate=0.1)
+    slim_gd(X, y, alpha=0, beta=0.5, iter_num=10000, learning_rate=0.0001)
