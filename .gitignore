@@ -103,6 +103,9 @@ ENV/
 # data file
 *.csv
 *.txt
+*.dat
+*.data
+*.base
 
 # IDE
 */.idea/
