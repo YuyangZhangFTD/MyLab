@@ -64,13 +64,15 @@ class BPRMF(env.AlgoBase):
 
                     i = np.random.randint(num)
                     j = np.random.randint(num)
-                    
-                    if i==j or dok_rating.get((u,i)) == dok_rating.get((u,j)):
+
+                    if i == j or dok_rating.get(
+                            (u, i)) == dok_rating.get(
+                            (u, j)):
                         continue
 
                     if dok_rating.get((u, i)) < dok_rating.get((u, j)):
                         i, j = j, i
-                    
+
                     s = _sigmoid(np.dot(self.P[u, :], self.Q[i, :]) -
                                  np.dot(self.P[u, :], self.Q[j, :]))
 
@@ -85,9 +87,9 @@ class BPRMF(env.AlgoBase):
 
     def estimate(self, u, i):
         try:
-            estimator = np.dot(self.P[u,:], self.Q[i,:])
-        except:
-            print('unknown input: u-->'+str(u)+'  i-->'+str(i))
+            estimator = np.dot(self.P[u, :], self.Q[i, :])
+        except BaseException:
+            print('unknown input: u-->' + str(u) + '  i-->' + str(i))
             estimator = 3
         return estimator
 
@@ -98,7 +100,7 @@ if __name__ == '__main__':
 
     algo = BPRMF(
         learning_rate=0.00001,
-        factor_num=20,
+        factor_num=10,
         max_iter=10,
         alpha=0.01,
         eps=1e-4,
