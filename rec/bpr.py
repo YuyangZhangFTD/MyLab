@@ -96,10 +96,7 @@ class BPRMF(env.AlgoBase):
 
                     rui = np.dot(self.P[u, :], self.Q[i, :])
                     ruj = np.dot(self.P[u, :], self.Q[j, :])
-               # print('True rui-->' + str(dok_rating.get((u, i))))
-               # print('Estimate rui==>' + str(rui))
-               # print('True ruj-->' + str(dok_rating.get((u, j))))
-               # print('Estimate ruj==>' + str(ruj))
+                    error = ()
 
     def estimate(self, u, i):
         try:

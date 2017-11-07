@@ -1,15 +1,47 @@
+from scipy import sparse
+import numpy as np
+
 import surprise as env
 
 
-class MyAlgo(env.AlgoBase):
+class SLIM(env.AlgoBase):
 
-    def __init__(self):
+    def __init__(self, learning_rate=0.01, max_iter=100, alpha=0.5, reg=0.1):
 
         env.AlgoBase.__init__(self)
+        self.eta = learning_rate
+        self.maxiter = max_iter
+        self.alpha = alpha
+        self.reg = reg
+
 
     def train(self, trainset):
 
         env.AlgoBase.train(self, trainset)
+        user_num = self.trainset.n_users
+        item_num = self.trainset.n_items
+
+        lil_rating = sparse.lil_matrix((user_num, item_num))
+
+        for u, i, r in self.trainset.all_ratings():
+            lil_rating[u, i] = r
+
+        A = sparse.csc_matrix(lil_rating)
+        W = sparse.lil_matrix((item_num, item_num))
+
+        del lil_rating
+
+        for j in range(item_num):
+
+            wj = sparse.csc_matrix((item_num, 1))
+            aj = A.getcol(j).toarray().ravel()
+            Aj = A.copy()
+            Aj[:, j] = 0
+            for iter_i in range(self.maxiter):
+
+                pass
+
+
 
     def estimate(self, u, i):
         try:
@@ -43,7 +75,7 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MyAlgo()
+    algo = SLIM()
 
     # evaluate
     env.evaluate(algo, data)

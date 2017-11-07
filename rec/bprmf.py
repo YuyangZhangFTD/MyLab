@@ -1,7 +1,7 @@
 import surprise as env
 
 
-class MyAlgo(env.AlgoBase):
+class BPRMF(env.AlgoBase):
 
     def __init__(self):
 
@@ -10,6 +10,11 @@ class MyAlgo(env.AlgoBase):
     def train(self, trainset):
 
         env.AlgoBase.train(self, trainset)
+
+        user_num = self.trainset.n_users
+        item_num = self.trainset.n_items
+
+
 
     def estimate(self, u, i):
         try:
@@ -31,19 +36,19 @@ if __name__ == '__main__':
     # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-100k
-    file_path = 'input/ml-100k/u.data'
-    reader = env.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
+    # file_path = 'input/ml-100k/u.data'
+    # reader = env.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-20m
-    # file_path = 'input/ml-20m/ratings.csv'
-    # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
+    file_path = 'input/ml-20m/ratings.csv'
+    reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
     # ==============================================================================
 
     data = env.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MyAlgo()
+    algo = BPRMF()
 
     # evaluate
     env.evaluate(algo, data)
