@@ -105,6 +105,18 @@ Sad.
 
 ---
 
+2017-11-06
+
+BPR.
+
+---
+
+2017-11-07
+
+BPR+MF with surprise.
+The surprise is terrific for implement new algorithms.
+
+---
 
 
 

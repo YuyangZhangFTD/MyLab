@@ -1,7 +1,6 @@
-from scipy import sparse
 import numpy as np
-
 import surprise as env
+from scipy import sparse
 
 
 class MF2(env.AlgoBase):
@@ -59,8 +58,7 @@ class MF2(env.AlgoBase):
 
         for f in range(self.k):
             print("-" * 12 + str(f) + "-" * 12)
-            for iter_i in range(int(self.maxiter / (f + 1))):
-                eta = self.eta / (f + 1)
+            for iter_i in range(self.maxiter):
                 square_loss = 0
 
                 # Gradient Decent for all data
@@ -75,13 +73,13 @@ class MF2(env.AlgoBase):
                     err = r - hat
 
                     if self.ifbias:
-                        self.bu[u] += eta * (err - self.reg * self.bu[u])
-                        self.bi[i] += eta * (err - self.reg * self.bi[i])
+                        self.bu[u] += self.eta * (err - self.reg * self.bu[u])
+                        self.bi[i] += self.eta * (err - self.reg * self.bi[i])
 
-                    self.P[u, :f + 1] += eta * \
-                        (err * self.Q[i, :f + 1] - self.reg * self.P[u, :f + 1])
-                    self.Q[i, :f + 1] += eta * \
-                        (err * self.P[u, :f + 1] - self.reg * self.Q[i, :f + 1])
+                    self.P[u, :f + 1] += self.eta * \
+                                         (err * self.Q[i, :f + 1] - self.reg * self.P[u, :f + 1])
+                    self.Q[i, :f + 1] += self.eta * \
+                                         (err * self.P[u, :f + 1] - self.reg * self.Q[i, :f + 1])
                     square_loss += (r - hat)**2
                 loss = 0.5 * square_loss + self.reg * \
                     (np.sum(self.bu**2) + np.sum(self.bi**2) + np.sum(self.P**2) + np.sum(self.Q**2))

@@ -22,6 +22,7 @@ class BPRMF(env.AlgoBase):
             eps=1e-4,
             random=True):
 
+        env.AlgoBase.__init__(self)
         self.eta = learning_rate
         self.k = factor_num
         self.maxiter = max_iter
@@ -51,9 +52,6 @@ class BPRMF(env.AlgoBase):
         dok_rating = sparse.dok_matrix(lil_rating)
 
         for iter_i in range(self.maxiter):
-
-            #print("iteration at:  " + str(iter_i))
-
             for u in range(user_num):
 
                 if self.random:
@@ -94,10 +92,6 @@ class BPRMF(env.AlgoBase):
                     self.Q[i, :] -= self.eta * self.reg * self.Q[i, :]
                     self.Q[j, :] -= self.eta * self.reg * self.Q[j, :]
 
-                    rui = np.dot(self.P[u, :], self.Q[i, :])
-                    ruj = np.dot(self.P[u, :], self.Q[j, :])
-                    error = ()
-
     def estimate(self, u, i):
         try:
             estimator = np.dot(self.P[u, :], self.Q[i, :])
@@ -133,9 +127,9 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     algo = BPRMF(
-        learning_rate=0.1,
-        factor_num=10,
-        max_iter=10,
+        learning_rate=0.01,
+        factor_num=20,
+        max_iter=300,
         alpha=0.01,
         eps=1e-2,
         random=False)
