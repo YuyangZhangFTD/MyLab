@@ -117,6 +117,7 @@ if __name__ == '__main__':
               max_iter=200,
               learning_rate=0.001,
               reg=0.1,
+              batch_size=100,
               bias=True)
 
     # evaluate

@@ -21,6 +21,7 @@ class MF2(env.AlgoBase):
             max_iter=500,
             learning_rate=0.001,
             reg=0.1,
+            batch_size=100,
             bias=True):
 
         env.AlgoBase.__init__(self)
@@ -29,6 +30,7 @@ class MF2(env.AlgoBase):
         self.eta = learning_rate
         self.ifbias = bias
         self.reg = reg
+        self.batch = batch_size
         self.P = None
         self.Q = None
         self.bu = None
@@ -126,6 +128,7 @@ if __name__ == '__main__':
                max_iter=500,
                learning_rate=0.01,
                reg=0.1,
+               batch_size=100,
                bias=True)
 
     # evaluate
