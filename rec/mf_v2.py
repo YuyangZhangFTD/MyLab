@@ -64,7 +64,7 @@ class MF2(env.AlgoBase):
                 # Gradient Decent for all data
                 # for ((u, i), r) in dok_rating.items():
                 # Stochastic Gradient Descent for batch
-                batch_index = np.randint(0, rating_num, self.batch)
+                batch_index = np.random.choice(rating_num, self.batch)
                 for index in batch_index:
                     (u, i), r = uir_list[index]
 
