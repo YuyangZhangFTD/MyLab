@@ -144,8 +144,4 @@ if __name__ == '__main__':
         random=False)
 
     env.evaluate(algo, data)
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 00c58560823668e02923c962e2c8bd7dddc3b990

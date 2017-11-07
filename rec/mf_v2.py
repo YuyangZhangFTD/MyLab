@@ -14,10 +14,11 @@ class MF2(env.AlgoBase):
                     update p[u, f]
                     update q[i, f]
     """
+
     def __init__(
             self,
             factor_num=10,
-            max_iter=200,
+            max_iter=500,
             learning_rate=0.001,
             reg=0.1,
             bias=True):
@@ -51,29 +52,38 @@ class MF2(env.AlgoBase):
             lil_rating[u, i] = r
 
         dok_rating = sparse.dok_matrix(lil_rating)
+        rating_num = dok_rating.nnz
+        uir_list = list(dok_rating.items())
 
         for f in range(self.k):
             print("-" * 12 + str(f) + "-" * 12)
-            for iter_i in range(int(self.maxiter/(f+1))):
-                eta = self.eta / (f+1)
+            for iter_i in range(int(self.maxiter / (f + 1))):
+                eta = self.eta / (f + 1)
                 square_loss = 0
-                for ((u, i), r) in dok_rating.items():
+
+                # Gradient Decent for all data
+                # for ((u, i), r) in dok_rating.items():
+                # Stochastic Gradient Descent for batch
+                batch_index = np.randint(0, rating_num, self.batch)
+                for index in batch_index:
+                    (u, i), r = uir_list[index]
+
                     hat = self.mu + self.bu[u] + self.bi[i] + \
-                        np.dot(self.P[u, :f+1], self.Q[i, :f+1])
+                        np.dot(self.P[u, :f + 1], self.Q[i, :f + 1])
                     err = r - hat
 
                     if self.ifbias:
                         self.bu[u] += eta * (err - self.reg * self.bu[u])
                         self.bi[i] += eta * (err - self.reg * self.bi[i])
 
-                    self.P[u, :f+1] += eta * \
-                        (err * self.Q[i, :f+1] - self.reg * self.P[u, :f+1])
-                    self.Q[i, :f+1] += eta * \
-                        (err * self.P[u, :f+1] - self.reg * self.Q[i, :f+1])
+                    self.P[u, :f + 1] += eta * \
+                        (err * self.Q[i, :f + 1] - self.reg * self.P[u, :f + 1])
+                    self.Q[i, :f + 1] += eta * \
+                        (err * self.P[u, :f + 1] - self.reg * self.Q[i, :f + 1])
                     square_loss += (r - hat)**2
                 loss = 0.5 * square_loss + self.reg * \
                     (np.sum(self.bu**2) + np.sum(self.bi**2) + np.sum(self.P**2) + np.sum(self.Q**2))
-                print("iteration at " + str(iter_i) + "  loss: " + str(loss))
+                print("iteration at " + str(iter_i+1) + "  loss: " + str(loss))
 
     def estimate(self, u, i):
         estimator = 3
@@ -113,10 +123,10 @@ if __name__ == '__main__':
 
     # define algorithm
     algo = MF2(factor_num=10,
-              max_iter=200,
-              learning_rate=0.001,
-              reg=0.1,
-              bias=True)
+               max_iter=500,
+               learning_rate=0.01,
+               reg=0.1,
+               bias=True)
 
     # evaluate
     env.evaluate(algo, data)

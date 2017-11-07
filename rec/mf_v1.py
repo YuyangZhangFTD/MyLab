@@ -12,6 +12,7 @@ class MF(env.AlgoBase):
             max_iter=200,
             learning_rate=0.001,
             reg=0.1,
+            batch_size=100,
             bias=True):
 
         env.AlgoBase.__init__(self)
@@ -20,6 +21,7 @@ class MF(env.AlgoBase):
         self.eta = learning_rate
         self.ifbias = bias
         self.reg = reg
+        self.batch = batch_size
         self.P = None
         self.Q = None
         self.bu = None
@@ -44,32 +46,19 @@ class MF(env.AlgoBase):
 
         dok_rating = sparse.dok_matrix(lil_rating)
 
-        '''
-        for f in range(self.k):
-            print("-" * 12 + str(f) + "-" * 12)
-            for iter_i in range(self.maxiter):
-                square_loss = 0
-                for ((u, i), r) in dok_rating.items():
-                    hat = self.mu + self.bu[u] + self.bi[i] + \
-                        np.dot(self.P[u, :f+1], self.Q[i, :f+1])
-                    err = r - hat
+        rating_num = dok_rating.nnz
+        uir_list = list(dok_rating.items())
 
-                    if self.ifbias:
-                        self.bu[u] += self.eta * (err - self.reg * self.bu[u])
-                        self.bi[i] += self.eta * (err - self.reg * self.bi[i])
-
-                    self.P[u, :f+1] += self.eta * \
-                        (err * self.Q[i, :f+1] - self.reg * self.P[u, :f+1])
-                    self.Q[i, :f+1] += self.eta * \
-                        (err * self.P[u, :f+1] - self.reg * self.Q[i, :f+1])
-                    square_loss += (r - hat)**2
-                loss = 0.5 * square_loss + self.reg * \
-                    (np.sum(self.bu**2) + np.sum(self.bi**2) + np.sum(self.P**2) + np.sum(self.Q**2))
-                print("iteration at " + str(iter_i) + "  loss: " + str(loss))
-        '''
         for iter_i in range(self.maxiter * self.k):
             square_loss = 0
-            for ((u, i), r) in dok_rating.items():
+
+            # Gradient Decent
+            # for ((u, i), r) in dok_rating.items():
+            # Stochastic Gradient Descent
+            batch_index = np.randint(0, rating_num, self.batch)
+            for index in batch_index:
+                (u, i), r = uir_list[index]
+
                 hat = self.mu + self.bu[u] + self.bi[i] + \
                     np.dot(self.P[u, :], self.Q[i, :])
                 err = r - hat
@@ -85,7 +74,7 @@ class MF(env.AlgoBase):
                 square_loss += (r - hat)**2
             loss = 0.5 * square_loss + self.reg * \
                 (np.sum(self.bu**2) + np.sum(self.bi**2) + np.sum(self.P**2) + np.sum(self.Q**2))
-            print("iteration at " + str(iter_i) + "  loss: " + str(loss))
+            print("iteration at " + str(iter_i+1) + "  loss: " + str(loss))
 
     def estimate(self, u, i):
         estimator = 3
