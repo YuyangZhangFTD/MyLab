@@ -25,10 +25,23 @@ if __name__ == '__main__':
     # builtin dataset
     # data = env.Dataset.load_builtin('ml-100k')
 
+    # ==============================================================================
     # load data
     # Attention: there is no title line in input file
-    file_path = 'input/ml-latest-small/ratings_surprise.csv'
-    reader = env.Reader(line_format='user item rating timestamp', sep=',')
+    # ------------------------------------------------------------------------------
+    # ml-latest-small
+    # file_path = 'input/ml-latest-small/ratings_surprise.csv'
+    # reader = env.Reader(line_format='user item rating timestamp', sep=',')
+    # ------------------------------------------------------------------------------
+    # ml-100k
+    file_path = 'input/ml-100k/u.data'
+    reader = env.Reader(line_format='user item rating timestamp', sep='\t')
+    # ------------------------------------------------------------------------------
+    # ml-20m
+    # file_path = 'input/ml-20m/ratings_surprise.csv
+    # reader = env.Reader(line_format='user item rating timestamp', sep=',')
+    # ==============================================================================
+
     data = env.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 

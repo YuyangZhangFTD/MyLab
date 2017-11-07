@@ -106,6 +106,12 @@ ENV/
 *.dat
 *.data
 *.base
+*.test
+*.user
+*.genre
+*.occupation
+*.item
+*.info
 
 # IDE
 */.idea/
