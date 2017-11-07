@@ -31,8 +31,6 @@ class BPRMF(env.AlgoBase):
         self.P = None    # P is user vector
         self.Q = None    # Q is item vector
 
-        pass
-
     def train(self, trainset):
 
         env.AlgoBase.train(self, trainset)
@@ -46,32 +44,43 @@ class BPRMF(env.AlgoBase):
 
         # rating = sparse_rating.toarray()
 
-        self.P = np.zeros((user_num, self.k)) + self.eps
-        self.Q = np.zeros((item_num, self.k)) + self.eps
+        self.P = np.zeros((user_num, self.k)) + 0.1
+        self.Q = np.zeros((item_num, self.k)) + 0.1
 
         # to dok_matrix for convinence
         dok_rating = sparse.dok_matrix(lil_rating)
 
         for iter_i in range(self.maxiter):
+
+            #print("iteration at:  " + str(iter_i))
+
             for u in range(user_num):
 
                 if self.random:
                     u = np.random.randint(user_num)
 
-                num = dok_rating.getrow(u).nnz
+                item_list = dok_rating.getrow(u)
+
+                num = item_list.nnz
+
+                # e.g. [((0,0), 3.0), ((0,1), 2.0), ...]
+                item_list = list(item_list.items())
 
                 for __ in range(num):
 
+                    # index of item of sparse matrix
                     i = np.random.randint(num)
                     j = np.random.randint(num)
 
-                    if i == j or dok_rating.get(
-                            (u, i)) == dok_rating.get(
-                            (u, j)):
+                    if i == j or item_list[i][-1] == item_list[j][-1]:
                         continue
 
-                    if dok_rating.get((u, i)) < dok_rating.get((u, j)):
-                        i, j = j, i
+                    # convert index of rating value sparse matrix
+                    # to index of rating matrix
+                    if item_list[i][-1] < item_list[j][-1]:
+                        i, j = item_list[j][0][-1], item_list[i][0][-1]
+                    else:
+                        i, j = item_list[i][0][-1], item_list[j][0][-1]
 
                     s = _sigmoid(np.dot(self.P[u, :], self.Q[i, :]) -
                                  np.dot(self.P[u, :], self.Q[j, :]))
@@ -84,6 +93,13 @@ class BPRMF(env.AlgoBase):
                     self.P[u, :] -= self.eta * self.reg * self.P[u, :]
                     self.Q[i, :] -= self.eta * self.reg * self.Q[i, :]
                     self.Q[j, :] -= self.eta * self.reg * self.Q[j, :]
+
+                    rui = np.dot(self.P[u, :], self.Q[i, :])
+                    ruj = np.dot(self.P[u, :], self.Q[j, :])
+               # print('True rui-->' + str(dok_rating.get((u, i))))
+               # print('Estimate rui==>' + str(rui))
+               # print('True ruj-->' + str(dok_rating.get((u, j))))
+               # print('Estimate ruj==>' + str(ruj))
 
     def estimate(self, u, i):
         try:
@@ -99,12 +115,11 @@ if __name__ == '__main__':
     data = env.Dataset.load_builtin('ml-100k')
 
     algo = BPRMF(
-        learning_rate=0.00001,
+        learning_rate=0.1,
         factor_num=10,
         max_iter=10,
         alpha=0.01,
-        eps=1e-4,
+        eps=1e-2,
         random=False)
 
     env.evaluate(algo, data)
-    print("Running")
