@@ -35,7 +35,7 @@ class RankAlgoBase(object):
 
         details = {}
         try:
-            user_rating = self.estimator[iuid, :].toarray()
+            user_rating = self.estimator[iuid, :]
             index_rating = [(i, user_rating[i])
                             for i in range(len(user_rating))]
             index_rating.sort(key=lambda x: -x[1])

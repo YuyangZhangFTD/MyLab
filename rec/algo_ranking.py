@@ -83,6 +83,9 @@ class BPR(RankAlgoBase):
                     self.reg * np.sum(self.Q ** 2)
             print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
+        # estimator
+        self.estimator = np.dot(self.P, self.Q.T)
+
 
 if __name__ == '__main__':
     # builtin dataset
@@ -111,9 +114,9 @@ if __name__ == '__main__':
     # define algorithm
     algo = BPR(learning_rate=0.01,
                factor_num=20,
-               max_iter=300,
+               max_iter=3,
                alpha=0.01,
-               batch=200)
+               batch=2)
 
     # evaluate
     myenv.evaluate_topn(algo, data, 10)
