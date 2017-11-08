@@ -74,6 +74,7 @@ def evaluate_topn(
         with_dump=False,
         dump_dir=None,
         verbose=1):
+
     if not isinstance(algo, RankAlgoBase):
         print("Your algorithm is not rank-model")
         return None
@@ -87,7 +88,7 @@ def evaluate_topn(
             print('Fold ' + str(fold_i + 1))
 
         algo.train(trainset)
-        predictions_topn = algo.test_topn(
+        predictions_topn = algo.test(
             testset, topn, verbose=(verbose == 2))
 
         hr, arhr = accuracy_topn(predictions_topn)
