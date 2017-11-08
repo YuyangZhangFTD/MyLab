@@ -21,6 +21,7 @@ class BPRMF(env.AlgoBase):
             learning_rate=0.001,
             reg=0.1,
             batch_size=100,
+            withsgd=True,
             bias=True):
 
         env.AlgoBase.__init__(self)
@@ -30,6 +31,7 @@ class BPRMF(env.AlgoBase):
         self.eta = learning_rate
         self.ifbias = bias
         self.reg = reg
+        self.withsgd = withsgd
         self.maxepoch = epoch_n
         self.batch = batch_size
         self.P = None
@@ -67,10 +69,13 @@ class BPRMF(env.AlgoBase):
             for iter_i in range(self.mfmaxiter):
                 square_loss = 0
 
-                # Gradient Decent
-                # for ((u, i), r) in dok_rating.items():
-                # Stochastic Gradient Descent
-                batch_index = np.random.choice(rating_num, self.batch)
+                if self.withsgd:
+                    # Stochastic Gradient Descent
+                    batch_index = np.random.choice(rating_num, self.batch)
+                else:
+                    # Gradient Decent for all data
+                    batch_index = range(rating_num)
+
                 for index in batch_index:
                     (u, i), r = uir_list[index]
 
@@ -150,14 +155,14 @@ class BPRMF(env.AlgoBase):
                       "  batch loss: " + str(loss))
 
     def estimate(self, u, i):
-        estimator = 3
-        try:
-            estimator = np.dot(self.P[u, :], self.Q[i, :])
-            if self.ifbias:
-                estimator += self.mu + self.bu[u] + self.bi[i]
-        except BaseException:
+
+        if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
-        return estimator
+            raise env.PredictionImpossible('User and/or item is unkown.')
+
+        estimator = np.dot(self.P[u, :], self.Q[i, :])
+        if self.ifbias:
+            estimator += self.mu + self.bu[u] + self.bi[i]
 
 
 if __name__ == '__main__':
@@ -191,6 +196,7 @@ if __name__ == '__main__':
                  learning_rate=0.001,
                  reg=0.1,
                  batch_size=1000,
+                 withsgd=True,
                  bias=True)
 
     # evaluate

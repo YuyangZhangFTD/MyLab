@@ -12,11 +12,12 @@ class MyAlgo(env.AlgoBase):
         env.AlgoBase.train(self, trainset)
 
     def estimate(self, u, i):
-        try:
-            estimator = 3
-        except BaseException:
+        if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
-            estimator = 3
+            raise env.PredictionImpossible('User and/or item is unkown.')
+
+        estimator = 3
+
         return estimator
 
 

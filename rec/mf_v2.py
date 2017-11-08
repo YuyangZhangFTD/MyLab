@@ -21,6 +21,7 @@ class MF2(env.AlgoBase):
             learning_rate=0.001,
             reg=0.1,
             batch_size=100,
+            sgd=False,
             bias=True):
 
         env.AlgoBase.__init__(self)
@@ -30,6 +31,7 @@ class MF2(env.AlgoBase):
         self.ifbias = bias
         self.reg = reg
         self.batch = batch_size
+        self.withsgd = sgd
         self.P = None
         self.Q = None
         self.bu = None
@@ -61,10 +63,13 @@ class MF2(env.AlgoBase):
             for iter_i in range(self.maxiter):
                 square_loss = 0
 
-                # Gradient Decent for all data
-                # for ((u, i), r) in dok_rating.items():
-                # Stochastic Gradient Descent for batch
-                batch_index = np.random.choice(rating_num, self.batch)
+                if self.withsgd:
+                    # Stochastic Gradient Descent
+                    batch_index = np.random.choice(rating_num, self.batch)
+                else:
+                    # Gradient Decent for all data
+                    batch_index = range(rating_num)
+
                 for index in batch_index:
                     (u, i), r = uir_list[index]
 
@@ -86,14 +91,14 @@ class MF2(env.AlgoBase):
                 print("iteration at " + str(iter_i+1) + "  loss: " + str(loss))
 
     def estimate(self, u, i):
-        estimator = 3
-        try:
-            estimator = np.dot(self.P[u, :], self.Q[i, :])
-            if self.ifbias:
-                estimator += self.mu + self.bu[u] + self.bi[i]
-        except BaseException:
+
+        if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
+            raise env.PredictionImpossible('User and/or item is unkown.')
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
-        return estimator
+
+        estimator = np.dot(self.P[u, :], self.Q[i, :])
+        if self.ifbias:
+            estimator += self.mu + self.bu[u] + self.bi[i]
 
 
 if __name__ == '__main__':
@@ -119,11 +124,12 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MF2(factor_num=10,
-               max_iter=500,
-               learning_rate=0.01,
+    algo = MF2(factor_num=100,
+               max_iter=1000,
+               learning_rate=0.0001,
                reg=0.1,
                batch_size=100,
+               sgd=False,
                bias=True)
 
     # evaluate

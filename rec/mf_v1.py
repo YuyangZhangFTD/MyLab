@@ -1,7 +1,6 @@
-from scipy import sparse
 import numpy as np
-
 import surprise as env
+from scipy import sparse
 
 
 class MF(env.AlgoBase):
@@ -13,6 +12,7 @@ class MF(env.AlgoBase):
             learning_rate=0.001,
             reg=0.1,
             batch_size=100,
+            sgd=True,
             bias=True):
 
         env.AlgoBase.__init__(self)
@@ -20,6 +20,7 @@ class MF(env.AlgoBase):
         self.maxiter = max_iter
         self.eta = learning_rate
         self.ifbias = bias
+        self.withsgd = sgd
         self.reg = reg
         self.batch = batch_size
         self.P = None
@@ -49,13 +50,16 @@ class MF(env.AlgoBase):
         rating_num = dok_rating.nnz
         uir_list = list(dok_rating.items())
 
-        for iter_i in range(self.maxiter * self.k):
+        for iter_i in range(self.maxiter):
             square_loss = 0
 
-            # Gradient Decent
-            # for ((u, i), r) in dok_rating.items():
-            # Stochastic Gradient Descent
-            batch_index = np.random.choice(rating_num, self.batch)
+            if self.withsgd:
+                # Stochastic Gradient Descent
+                batch_index = np.random.choice(rating_num, self.batch)
+            else:
+                # Gradient Decent for all data
+                batch_index = range(rating_num)
+
             for index in batch_index:
                 (u, i), r = uir_list[index]
 
@@ -77,13 +81,15 @@ class MF(env.AlgoBase):
             print("iteration at " + str(iter_i+1) + "  loss: " + str(loss))
 
     def estimate(self, u, i):
-        estimator = 3
-        try:
-            estimator = np.dot(self.P[u, :], self.Q[i, :])
-            if self.ifbias:
-                estimator += self.mu + self.bu[u] + self.bi[i]
-        except BaseException:
+
+        if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
+            raise env.PredictionImpossible('User and/or item is unkown.')
+
+        estimator = np.dot(self.P[u, :], self.Q[i, :])
+        if self.ifbias:
+            estimator += self.mu + self.bu[u] + self.bi[i]
+
         return estimator
 
 
@@ -110,11 +116,12 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MF(factor_num=10,
+    algo = MF(factor_num=100,
               max_iter=200,
               learning_rate=0.001,
               reg=0.1,
               batch_size=100,
+              sgd=False,
               bias=True)
 
     # evaluate

@@ -2,13 +2,15 @@ import numpy as np
 import surprise as env
 from scipy import sparse
 
+import MySurprise as myenv
+
 
 def _sigmoid(x):
 
     return 1 / (1 + np.exp(-1 * x))
 
 
-class BPRMF(env.AlgoBase):
+class BPR(env.AlgoBase):
     """
        alpha is regularization coefficient
     """
@@ -48,7 +50,7 @@ class BPRMF(env.AlgoBase):
         self.P = np.zeros((user_num, self.k)) + 0.1
         self.Q = np.zeros((item_num, self.k)) + 0.1
 
-        # to dok_matrix for convinence
+        # to dok_matrix for convenience
         dok_rating = sparse.dok_matrix(lil_rating)
 
         for iter_i in range(self.maxiter):
@@ -100,6 +102,53 @@ class BPRMF(env.AlgoBase):
             estimator = 3
         return estimator
 
+    # use algo_ranking.py instead for bpr-ranking test
+    def predict_topn(self, uid, iid, topn, verbose=False):
+        """ Not implement self.estimate
+
+        And generate recommendation list of a user here
+        """
+        # Convert raw ids to inner ids
+        try:
+            iuid = self.trainset.to_inner_uid(uid)
+            iiid = self.trainset.to_inner_iid(iid)
+        except ValueError:
+            iuid = 'UKN__' + str(uid)
+            iiid = 'UKN__' + str(iid)
+
+        details = {}
+        try:
+            user_rating = self.estimator[iuid, :].toarray()
+            index_rating = [(i, user_rating[i])
+                            for i in range(len(user_rating))]
+            index_rating.sort(key=lambda x: -x[1])
+            est_list = [x[0] for x in index_rating[:topn]]
+            details['was_impossible'] = False
+        except env.PredictionImpossible as e:
+            est_list = []
+            details['was_impossible'] = True
+            details['reason'] = str(e)
+
+        pred = myenv.Prediction_topn(uid, iiid, est_list, details)
+
+        if verbose:
+            print(pred)
+
+        return pred
+
+    # use algo_ranking.py instead for bpr-ranking test
+    def test_topn(self, testset, topn, verbose=False):
+        predictions_topn = [
+            self.predict_topn(
+                uid,
+                iid,
+                topn,
+                verbose=verbose) for (
+                uid,
+                iid,
+                r_ui_trans) in testset if r_ui_trans > 3]
+        return predictions_topn
+
 
 if __name__ == '__main__':
 
@@ -126,7 +175,7 @@ if __name__ == '__main__':
     data = env.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
-    algo = BPRMF(
+    algo = BPR(
         learning_rate=0.01,
         factor_num=20,
         max_iter=300,
@@ -134,5 +183,5 @@ if __name__ == '__main__':
         eps=1e-2,
         random=False)
 
-    env.evaluate(algo, data)
-
+    # env.evaluate(algo, data)
+    myenv.evaluate_topn(algo=algo, data=data, topn=10)
