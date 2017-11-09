@@ -4,16 +4,12 @@ import MySurpriseEnv as myenv
 
 
 class RankAlgoBase(object):
-    def __init__(self, **kwargs):
+    def __init__(self):
 
-        self.bsl_options = kwargs.get('bsl_options', {})
-        self.sim_options = kwargs.get('sim_options', {})
         self.trainset = None
         self.estimator = None
         self.bu = None
         self.bi = None
-        if 'user_based' not in self.sim_options:
-            self.sim_options['user_based'] = True
 
     def train(self, trainset):
 
@@ -21,7 +17,6 @@ class RankAlgoBase(object):
 
         # self.estimator =
 
-    # TODO
     def predict(self, uid, iid, topn, verbose=False):
         # Convert raw ids to inner ids
         try:
@@ -51,7 +46,6 @@ class RankAlgoBase(object):
             print(pred)
         return pred
 
-    # TODO
     def test(self, testset, topn, rating_threshold=3, verbose=False):
         if self.estimator is None:
             print("estimator is not available")
