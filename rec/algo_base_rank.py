@@ -1,6 +1,6 @@
 import surprise as env
 
-import MySurprise as myenv
+import MySurpriseEnv as myenv
 
 
 class RankAlgoBase(object):
@@ -46,7 +46,7 @@ class RankAlgoBase(object):
             details['was_impossible'] = True
             details['reason'] = str(e)
 
-        pred = myenv.Prediction_topn(uid, iiid, est_list, details)
+        pred = myenv.Prediction_topn(iuid, iiid, est_list, details)
         if verbose:
             print(pred)
         return pred

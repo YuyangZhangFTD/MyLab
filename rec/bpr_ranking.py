@@ -2,7 +2,7 @@ import numpy as np
 import surprise as env
 from scipy import sparse
 
-import MySurprise as myenv
+import MySurpriseEnv as myenv
 from algo_base_rank import RankAlgoBase
 
 
@@ -114,9 +114,9 @@ if __name__ == '__main__':
     # define algorithm
     algo = BPR(learning_rate=0.01,
                factor_num=20,
-               max_iter=3,
+               max_iter=100,
                alpha=0.01,
-               batch=2)
+               batch=100)
 
     # evaluate
     myenv.evaluate_topn(algo, data, 10)

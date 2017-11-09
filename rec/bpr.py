@@ -2,7 +2,7 @@ import numpy as np
 import surprise as env
 from scipy import sparse
 
-import MySurprise as myenv
+import MySurpriseEnv as myenv
 
 
 def _sigmoid(x):

@@ -1,9 +1,6 @@
-from collections import defaultdict
-import numpy as np
-
 from surprise import *
 
-from MySurprise import *
+from MySurpriseEnv import *
 
 
 class MySVD(SVD):

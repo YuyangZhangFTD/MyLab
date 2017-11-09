@@ -6,14 +6,12 @@ to User Guide for more insight.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import numpy as np
 from scipy import sparse
-
 from surprise import AlgoBase
 from surprise import Dataset
-from surprise import evaluate
+
 import slim_tool as st
-from MySurprise import *
+from MySurpriseEnv import *
 
 
 class MyOwnAlgorithm(AlgoBase):

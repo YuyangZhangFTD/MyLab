@@ -3,15 +3,12 @@ This module descibes how to build your own prediction algorithm. Please refer
 to User Guide for more insight.
 """
 
-
-import numpy as np
 from scipy import sparse
 from sklearn import linear_model
-from MySurprise import *
-
 from surprise import AlgoBase
 from surprise import Dataset
-from surprise import evaluate
+
+from MySurpriseEnv import *
 
 
 class MyOwnAlgorithm(AlgoBase):

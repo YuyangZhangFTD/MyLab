@@ -48,13 +48,14 @@ def accuracy_topn(predictions_topn, verbose=True):
     arhr = 0
     test_user = set()
 
-    for uid, iiid, est_list, __ in predictions_topn:
+    for iuid, iiid, est_list, __ in predictions_topn:
 
         # only one item each user in test set
-        if uid not in test_user and iiid in est_list:
-            test_user.add(uid)
-            hr += 1
-            arhr += 1 / (est_list.index(iiid) + 1)
+        if iuid not in test_user:
+            test_user.add(iuid)
+            if iiid in est_list:
+                hr += 1
+                arhr += 1 / (est_list.index(iiid) + 1)
 
     hr /= len(test_user)
     arhr /= len(test_user)
