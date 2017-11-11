@@ -43,6 +43,7 @@ def optimizeMF(ratings, rank, num_iter=10, num_neg_samples=30):
 
     Returns:
     --------
+
         (user_mat, prod_mat)
     """
 

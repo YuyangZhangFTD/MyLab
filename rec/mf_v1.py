@@ -112,7 +112,7 @@ if __name__ == '__main__':
     # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
     # ==============================================================================
 
-    data = env.Dataset.load_from_file(file_path, reader=reader)
+    data = env.Dataset.load_from_file(file_path, reader=reader)  # for rating
     data.split(n_folds=5)
 
     # define algorithm
