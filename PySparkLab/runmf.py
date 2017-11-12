@@ -23,7 +23,7 @@ if __name__ == '__main__':
     )
 
     # userMat, prodMat = bpr(ratings, 10, 10)
-    userMat, itemMat = bpr(ratings, 100, num_iter=20, num_neg_samples=10)
+    userMat, itemMat = bpr(ratings, 100, num_iter=10, num_neg_samples=10)
 
     np.savetxt("userMatrix.txt", userMat, delimiter=',')
     np.savetxt("itemMatrix.txt", itemMat, delimiter=',')
