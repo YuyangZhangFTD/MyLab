@@ -5,8 +5,8 @@ import surprise as env
 import MySurpriseEnv as myenv
 
 
-def evaluate(algo, data, top_n=10, measures=['hit', 'arhr'], with_dump=False,
-             dump_dir=None, verbose=1):
+def evaluate_topn(algo, data, top_n=10, measures=['hit', 'arhr'], threshold=3.5,
+                  with_dump=False, dump_dir=None, verbose=1):
     performances = myenv.CaseInsensitiveDefaultDict(list)
 
     if verbose:
@@ -35,11 +35,28 @@ def evaluate(algo, data, top_n=10, measures=['hit', 'arhr'], with_dump=False,
             user_ratings.sort(key=lambda x: x[1], reverse=True)
             top_n_dict[uid] = user_ratings[:top_n]
 
-        # TODO
+        hr = 0
+        arhr = 0
         for u, i, r in testset:
-            pass
+            if r < threshold:
+                continue
+            iuid = trainset.to_inner_uid(u)
+            iiid = trainset.to_inner_iid(i)
 
-    pass
+            userset = set()
+            if iuid not in userset:
+                userset.add(iuid)
+                if iiid in top_n_dict[iuid]:
+                    hr += 1
+                    arhr += 1 / (top_n_dict[iuid].index(iiid) + 1)
+        hr /= len(userset)
+        arhr /= len(userset)
+
+    if verbose:
+        print('HR: {0:1.4f}'.format(hr))
+        print('ARHR: {0:1.4f}'.format(arhr))
+
+    return hr, arhr
 
 
 def get_top_n(predictions, n=10):

@@ -1,21 +1,19 @@
+import numpy as np
 import surprise as env
 
+import MySurpriseEnv as myenv
+from algo_base_rank import RankAlgoBase
 
-class MyAlgo(env.AlgoBase):
+
+class MyAlgo(RankAlgoBase):
     def __init__(self):
-        env.AlgoBase.__init__(self)
+        RankAlgoBase.__init__(self)
 
     def train(self, trainset):
-        env.AlgoBase.train(self, trainset)
-
-    def estimate(self, u, i):
-        if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
-            print('unknown input: u-->' + str(u) + '  i-->' + str(i))
-            raise env.PredictionImpossible('User and/or item is unkown.')
-
-        estimator = 3
-
-        return estimator
+        RankAlgoBase.train(self, trainset)
+        P = np.loadtxt("userMatrix.txt", delimiter=',')
+        Q = np.loadtxt("itemMatrix.txt", delimiter=',')
+        self.estimator = np.dot(P.T, Q)
 
 
 if __name__ == '__main__':
@@ -43,4 +41,4 @@ if __name__ == '__main__':
     algo = MyAlgo()
 
     # evaluate
-    env.evaluate(algo, data)
+    myenv.evaluate_topn(algo, data, 10)
