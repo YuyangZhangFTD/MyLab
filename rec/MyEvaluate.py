@@ -1,8 +1,6 @@
-from collections import defaultdict
-
 import surprise as env
-
 import MySurpriseEnv as myenv
+from collections import defaultdict
 
 
 def evaluate_topn(
@@ -119,4 +117,4 @@ if __name__ == '__main__':
 
     algo = env.SVD()
 
-    evaluate_topn(algo, data, topn=10, threshold=3.5)
+    evaluate_topn(algo, data, top_n=10, threshold=3.5)
