@@ -113,10 +113,10 @@ if __name__ == '__main__':
 
     # define algorithm
     algo = BPR(learning_rate=0.01,
-               factor_num=20,
-               max_iter=100,
+               factor_num=30,
+               max_iter=200,
                alpha=0.01,
-               batch=100)
+               batch=500)
 
     # evaluate
     myenv.evaluate_topn(algo, data, 10)
