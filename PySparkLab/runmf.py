@@ -1,6 +1,9 @@
+import numpy as np
 from pyspark import SparkConf, SparkContext
 
-from PySparkLab.distbpr import optimizeMF as distbpr
+from PySparkLab.bpr import optimizeMF as bpr
+
+# from PySparkLab.distbpr import optimizeMF as distbpr
 
 conf = (SparkConf().setMaster("local")
         .setAppName("BPR")
@@ -20,6 +23,7 @@ if __name__ == '__main__':
     )
 
     # userMat, prodMat = bpr(ratings, 10, 10)
-    userMat, prodMat = distbpr(ratings, 10, 10)
+    userMat, itemMat = bpr(ratings, 100, num_iter=10, num_neg_samples=10)
 
-    print(type(userMat))
+    np.savetxt("userMatrix.txt", userMat, delimiter=',')
+    np.savetxt("itemMatrix.txt", itemMat, delimiter=',')

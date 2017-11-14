@@ -23,7 +23,7 @@ def _gradient_single_point(user_id, prod_id, prod_id_neg,
 
 
 def _sample_optimize_partition(ratings, user_mat, prod_mat, num_prods,
-                               lambda_reg=0.001, alpha=0.1, position=None):
+                               lambda_reg=0.001, alpha=0.001, position=None):
     sampled_ratings = random.sample(list(ratings), 20000)
 
     for u, i, j in tqdm(sampled_ratings, position=position, leave=False):
@@ -43,6 +43,7 @@ def optimizeMF(ratings, rank, num_iter=10, num_neg_samples=30):
 
     Returns:
     --------
+
         (user_mat, prod_mat)
     """
 
