@@ -5,8 +5,17 @@ import surprise as env
 import MySurpriseEnv as myenv
 
 
-def evaluate_topn(algo, data, top_n=10, measures=['hit', 'arhr'], threshold=3.5,
-                  with_dump=False, dump_dir=None, verbose=1):
+def evaluate_topn(
+        algo,
+        data,
+        top_n=10,
+        measures=[
+            'hit',
+            'arhr'],
+    threshold=3.5,
+    with_dump=False,
+    dump_dir=None,
+        verbose=1):
     performances = myenv.CaseInsensitiveDefaultDict(list)
 
     if verbose:
@@ -30,7 +39,8 @@ def evaluate_topn(algo, data, top_n=10, measures=['hit', 'arhr'], threshold=3.5,
         for uid, iid, true_r, est, _ in predictions:
             top_n_dict[uid].append((iid, est))
 
-        # Then sort the predictions for each user and retrieve the k highest ones.
+        # Then sort the predictions for each user and retrieve the k highest
+        # ones.
         for uid, user_ratings in top_n_dict.items():
             user_ratings.sort(key=lambda x: x[1], reverse=True)
             top_n_dict[uid] = user_ratings[:top_n]
@@ -79,22 +89,25 @@ class DatasetTopn(env.dataset.DatasetAutoFolds):
         self.threshold = threshold
 
     def construct_testset(self, raw_testset):
-        return [(ruid, riid, r_ui_trans)
-                for (ruid, riid, r_ui_trans, _) in raw_testset if r_ui_trans > self.threshold]
+        return [(ruid, riid, r_ui_trans) for (ruid, riid, r_ui_trans, _)
+                in raw_testset if r_ui_trans > self.threshold]
 
 
 if __name__ == '__main__':
     # builtin dataset
     # data = env.Dataset.load_builtin('ml-100k')
 
-    # ===============================  load data  ===================================
+    # ===============================  load data  ============================
     # ml-latest-small
     # file_path = 'input/ml-latest-small/ratings.csv'
     # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-100k
     file_path = 'input/ml-100k/u.data'
-    reader = env.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
+    reader = env.Reader(
+        line_format='user item rating timestamp',
+        sep='\t',
+        skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
@@ -102,4 +115,8 @@ if __name__ == '__main__':
     # ==============================================================================
 
     data = DatasetTopn(ratings_file=file_path, reader=reader, threshold=3.5)
-    data.split(n_folds=5)
+    data.split(n_folds=3)
+
+    algo = env.SVD()
+
+    evaluate_topn(algo, data, topn=10, threshold=3.5)
