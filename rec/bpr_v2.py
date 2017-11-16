@@ -1,5 +1,4 @@
-# import surprise as env
-from surprise import AlgoBase, Reader, Dataset
+import surprise as env
 import MyEvaluate as topn
 import numpy as np
 from scipy import sparse
@@ -10,7 +9,7 @@ def _sigmoid(x):
     return 1 / (1 + np.exp(-1 * x))
 
 
-class BPR4TOPN(AlgoBase):
+class BPR4TOPN(env.AlgoBase):
     def __init__(
             self,
             learning_rate=0.00001,
@@ -31,7 +30,7 @@ class BPR4TOPN(AlgoBase):
 
     def train(self, trainset):
 
-        AlgoBase.train(self, trainset)
+        env.AlgoBase.train(self, trainset)
 
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
@@ -110,14 +109,14 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------------------
     # ml-100k
     file_path = 'input/ml-100k/u.data'
-    reader = Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
+    reader = env.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
     # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
     # ==============================================================================
 
-    data = Dataset.load_from_file(file_path, reader=reader)
+    data = env.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
     # define algorithm
