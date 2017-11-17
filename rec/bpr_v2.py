@@ -25,12 +25,15 @@ class BPR4TOPN(env.AlgoBase):
         self.reg = alpha
         self.eps = eps
         self.random = random
+        self.mean = 0
         self.P = None  # P is user vector
         self.Q = None  # Q is item vector
 
     def train(self, trainset):
 
         env.AlgoBase.train(self, trainset)
+
+        self.mean = self.trainset.global_mean
 
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
@@ -93,7 +96,7 @@ class BPR4TOPN(env.AlgoBase):
             estimator = np.dot(self.P[u, :], self.Q[i, :])
         except BaseException:
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
-            estimator = 3
+            estimator = self.mean
         return estimator
 
 
@@ -123,10 +126,11 @@ if __name__ == '__main__':
     algo = BPR4TOPN(
         learning_rate=0.01,
         factor_num=20,
-        max_iter=300,
+        max_iter=5,
         alpha=0.01,
         eps=1e-2,
         random=False)
 
     # evaluate
-    topn.evaluate_topn(algo, data, top_n=100, threshold=4.5)
+    # topn.evaluate_topn(algo, data, top_n=100, threshold=4.5)
+    env.evaluate(algo, data, measures=['fcp'])

@@ -93,8 +93,8 @@ class MF2(env.AlgoBase):
     def estimate(self, u, i):
 
         if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
-            raise env.PredictionImpossible('User and/or item is unkown.')
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
+            raise env.PredictionImpossible('User and/or item is unkown.')
 
         estimator = np.dot(self.P[u, :], self.Q[i, :])
         if self.ifbias:
@@ -133,4 +133,4 @@ if __name__ == '__main__':
                bias=True)
 
     # evaluate
-    env.evaluate(algo, data)
+    env.evaluate(algo, data, measures=['rmse', 'mae', 'fcp'])
