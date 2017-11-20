@@ -92,7 +92,7 @@ class BPR4TOPN(env.AlgoBase):
                     self.Q[i, :] -= self.eta * self.reg * self.Q[i, :]
                     self.Q[j, :] -= self.eta * self.reg * self.Q[j, :]
 
-        self.est = np.dot(self.P.T, self.Q)
+        self.est = np.dot(Q, P.T)
 
     def estimate(self, u, i):
         try:

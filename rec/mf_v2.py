@@ -89,7 +89,7 @@ class MF2(env.AlgoBase):
                                            (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
                 print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
-        estimator = np.dot(P.T, Q)
+        estimator = np.dot(Q, P.T)
         self.est = estimator
         self.mu = mu
         self.bu = bu

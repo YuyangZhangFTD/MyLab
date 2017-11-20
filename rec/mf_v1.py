@@ -35,10 +35,10 @@ class MF(env.AlgoBase):
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
         self.mu = self.trainset.global_mean
-        self.bu = np.zeros([user_num, 1])
-        self.bi = np.zeros([item_num, 1])
-        self.P = np.zeros((user_num, self.k)) + 0.1
-        self.Q = np.zeros((item_num, self.k)) + 0.1
+        bu = np.zeros([user_num, 1])
+        bi = np.zeros([item_num, 1])
+        P = np.zeros((user_num, self.k)) + 0.1
+        Q = np.zeros((item_num, self.k)) + 0.1
 
         lil_rating = sparse.lil_matrix((user_num, item_num))
 
@@ -63,29 +63,23 @@ class MF(env.AlgoBase):
             for index in batch_index:
                 (u, i), r = uir_list[index]
 
-                hat = self.mu + self.bu[u] + self.bi[i] + \
-                      np.dot(self.P[u, :], self.Q[i, :])
+                hat = self.mu + bu[u] + bi[i] + np.dot(P[u, :], Q[i, :])
                 err = r - hat
 
                 if self.ifbias:
-                    self.bu[u] += self.eta * (err - self.reg * self.bu[u])
-                    self.bi[i] += self.eta * (err - self.reg * self.bi[i])
+                    bu[u] += self.eta * (err - self.reg * bu[u])
+                    bi[i] += self.eta * (err - self.reg * bi[i])
 
-                self.P[u, :] += self.eta * \
-                                (err * self.Q[i, :] - self.reg * self.P[u, :])
-                self.Q[i, :] += self.eta * \
-                                (err * self.P[u, :] - self.reg * self.Q[i, :])
+                P[u, :] += self.eta * (err * Q[i, :] - self.reg * P[u, :])
+                Q[i, :] += self.eta * (err * P[u, :] - self.reg * Q[i, :])
                 square_loss += (r - hat) ** 2
-            loss = 0.5 * square_loss + self.reg * \
-                                       (np.sum(self.bu ** 2) + np.sum(self.bi ** 2) + np.sum(self.P ** 2) + np.sum(
-                                           self.Q ** 2))
+            loss = 0.5 * square_loss + self.reg * (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
             print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
-        estimator = np.dot(self.P[u, :], self.Q[i, :])
-        if self.ifbias:
-            estimator += self.mu + self.bu[u] + self.bi[i]
-
+        estimator = np.dot(Q, P.T)
         self.est = estimator
+        self.bu = bu
+        self.bi = bi
 
     def estimate(self, u, i):
 

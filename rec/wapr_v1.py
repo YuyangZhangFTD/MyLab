@@ -94,7 +94,7 @@ class WAPR(env.AlgoBase):
                     if iter_i % 100 == 0:
                         print(str(iter_i + 1) + "/" + str(batch_size))
 
-        self.est = np.dot(P.T, Q)
+        self.est = np.dot(Q, P.T)
 
     def estimate(self, u, i):
         try:

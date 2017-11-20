@@ -95,7 +95,7 @@ class BPR3(env.AlgoBase):
                     Q[i, :] -= self.eta * self.reg * Q[i, :]
                     Q[j, :] -= self.eta * self.reg * Q[j, :]
 
-        self.est = np.dot(P.T, Q)
+        self.est = np.dot(Q, P.T)
 
     def estimate(self, u, i):
         try:
