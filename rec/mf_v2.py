@@ -32,22 +32,21 @@ class MF2(env.AlgoBase):
         self.reg = reg
         self.batch = batch_size
         self.withsgd = sgd
-        self.P = None
-        self.Q = None
+        self.est = None
+        self.mu = None
         self.bu = None
         self.bi = None
-        self.mu = None
 
     def train(self, trainset):
 
         env.AlgoBase.train(self, trainset)
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
-        self.mu = self.trainset.global_mean
-        self.bu = np.zeros([user_num, 1])
-        self.bi = np.zeros([item_num, 1])
-        self.P = np.zeros((user_num, self.k)) + 0.1
-        self.Q = np.zeros((item_num, self.k)) + 0.1
+        mu = self.trainset.global_mean
+        bu = np.zeros([user_num, 1])
+        bi = np.zeros([item_num, 1])
+        P = np.zeros((user_num, self.k)) + 0.1
+        Q = np.zeros((item_num, self.k)) + 0.1
 
         lil_rating = sparse.lil_matrix((user_num, item_num))
 
@@ -73,36 +72,40 @@ class MF2(env.AlgoBase):
                 for index in batch_index:
                     (u, i), r = uir_list[index]
 
-                    hat = self.mu + self.bu[u] + self.bi[i] + \
-                        np.dot(self.P[u, :f + 1], self.Q[i, :f + 1])
+                    hat = mu + bu[u] + bi[i] + \
+                          np.dot(P[u, :f + 1], Q[i, :f + 1])
                     err = r - hat
 
                     if self.ifbias:
-                        self.bu[u] += self.eta * (err - self.reg * self.bu[u])
-                        self.bi[i] += self.eta * (err - self.reg * self.bi[i])
+                        bu[u] += self.eta * (err - self.reg * bu[u])
+                        bi[i] += self.eta * (err - self.reg * bi[i])
 
-                    self.P[u, :f + 1] += self.eta * \
-                                         (err * self.Q[i, :f + 1] - self.reg * self.P[u, :f + 1])
-                    self.Q[i, :f + 1] += self.eta * \
-                                         (err * self.P[u, :f + 1] - self.reg * self.Q[i, :f + 1])
-                    square_loss += (r - hat)**2
+                    P[u, :f + 1] += self.eta * \
+                                    (err * Q[i, :f + 1] - self.reg * P[u, :f + 1])
+                    Q[i, :f + 1] += self.eta * \
+                                    (err * P[u, :f + 1] - self.reg * Q[i, :f + 1])
+                    square_loss += (r - hat) ** 2
                 loss = 0.5 * square_loss + self.reg * \
-                    (np.sum(self.bu**2) + np.sum(self.bi**2) + np.sum(self.P**2) + np.sum(self.Q**2))
-                print("iteration at " + str(iter_i+1) + "  loss: " + str(loss))
+                                           (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
+                print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
+
+        estimator = np.dot(P.T, Q)
+        self.est = estimator
+        self.mu = mu
+        self.bu = bu
+        self.bi = bi
 
     def estimate(self, u, i):
 
         if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
             raise env.PredictionImpossible('User and/or item is unkown.')
-
-        estimator = np.dot(self.P[u, :], self.Q[i, :])
         if self.ifbias:
-            estimator += self.mu + self.bu[u] + self.bi[i]
+            self.est[u, i] += self.mu + self.bu[u] + self.bi[i]
+        return self.est[u, i]
 
 
 if __name__ == '__main__':
-
     # builtin dataset
     # data = env.Dataset.load_builtin('ml-100k')
 

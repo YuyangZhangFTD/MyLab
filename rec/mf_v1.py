@@ -4,7 +4,6 @@ from scipy import sparse
 
 
 class MF(env.AlgoBase):
-
     def __init__(
             self,
             factor_num=10,
@@ -23,6 +22,7 @@ class MF(env.AlgoBase):
         self.withsgd = sgd
         self.reg = reg
         self.batch = batch_size
+        self.est = None
         self.P = None
         self.Q = None
         self.bu = None
@@ -64,7 +64,7 @@ class MF(env.AlgoBase):
                 (u, i), r = uir_list[index]
 
                 hat = self.mu + self.bu[u] + self.bi[i] + \
-                    np.dot(self.P[u, :], self.Q[i, :])
+                      np.dot(self.P[u, :], self.Q[i, :])
                 err = r - hat
 
                 if self.ifbias:
@@ -72,13 +72,20 @@ class MF(env.AlgoBase):
                     self.bi[i] += self.eta * (err - self.reg * self.bi[i])
 
                 self.P[u, :] += self.eta * \
-                    (err * self.Q[i, :] - self.reg * self.P[u, :])
+                                (err * self.Q[i, :] - self.reg * self.P[u, :])
                 self.Q[i, :] += self.eta * \
-                    (err * self.P[u, :] - self.reg * self.Q[i, :])
-                square_loss += (r - hat)**2
+                                (err * self.P[u, :] - self.reg * self.Q[i, :])
+                square_loss += (r - hat) ** 2
             loss = 0.5 * square_loss + self.reg * \
-                (np.sum(self.bu**2) + np.sum(self.bi**2) + np.sum(self.P**2) + np.sum(self.Q**2))
-            print("iteration at " + str(iter_i+1) + "  loss: " + str(loss))
+                                       (np.sum(self.bu ** 2) + np.sum(self.bi ** 2) + np.sum(self.P ** 2) + np.sum(
+                                           self.Q ** 2))
+            print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
+
+        estimator = np.dot(self.P[u, :], self.Q[i, :])
+        if self.ifbias:
+            estimator += self.mu + self.bu[u] + self.bi[i]
+
+        self.est = estimator
 
     def estimate(self, u, i):
 
@@ -86,15 +93,10 @@ class MF(env.AlgoBase):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
             raise env.PredictionImpossible('User and/or item is unkown.')
 
-        estimator = np.dot(self.P[u, :], self.Q[i, :])
-        if self.ifbias:
-            estimator += self.mu + self.bu[u] + self.bi[i]
-
-        return estimator
+        return self.est[u, i]
 
 
 if __name__ == '__main__':
-
     # builtin dataset
     # data = env.Dataset.load_builtin('ml-100k')
 

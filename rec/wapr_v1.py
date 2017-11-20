@@ -1,34 +1,32 @@
-import surprise as env
-import MyEvaluate as topn
 import numpy as np
+import surprise as env
 from scipy import sparse
 
 
 def _sigmoid(x):
-
     return 1 / (1 + np.exp(-1 * x))
 
 
-class BPR4TOPN(env.AlgoBase):
+class WAPR(env.AlgoBase):
     def __init__(
             self,
             learning_rate=0.00001,
             factor_num=20,
-            max_iter=100,
+            epoch_num=5,
+            batch_num=512,
             alpha=0.01,
             eps=1e-4,
             random=True):
         env.AlgoBase.__init__(self)
         self.eta = learning_rate
         self.k = factor_num
-        self.maxiter = max_iter
+        self.epoch = epoch_num
+        self.batch = batch_num
         self.reg = alpha
         self.eps = eps
         self.random = random
         self.mean = 0
         self.est = None
-        self.P = None  # P is user vector
-        self.Q = None  # Q is item vector
 
     def train(self, trainset):
 
@@ -45,26 +43,28 @@ class BPR4TOPN(env.AlgoBase):
 
         # rating = sparse_rating.toarray()
 
-        self.P = np.zeros((user_num, self.k)) + 0.1
-        self.Q = np.zeros((item_num, self.k)) + 0.1
+        P = np.zeros((user_num, self.k)) + 0.1
+        Q = np.zeros((item_num, self.k)) + 0.1
 
         # to dok_matrix for convenience
         dok_rating = sparse.dok_matrix(lil_rating)
 
-        for iter_i in range(self.maxiter):
-            for u in range(user_num):
+        # batch size = train number / batch number
+        batch_size = int(dok_rating.nnz / self.batch)
 
-                if self.random:
+        for epoch_i in range(self.epoch):
+            print("-" * 20 + "epoch:  " + str(epoch_i + 1) + "-" * 20)
+
+            for batch_i in range(self.batch):
+                print("=" * 20 + "batch:  " + str(batch_i + 1) + "=" * 20)
+
+                for iter_i in range(batch_size):
+
+                    # get train pair randomly
                     u = np.random.randint(user_num)
-
-                item_list = dok_rating.getrow(u)
-
-                num = item_list.nnz
-
-                # e.g. [((0,0), 3.0), ((0,1), 2.0), ...]
-                item_list = list(item_list.items())
-
-                for __ in range(num):
+                    item_list = dok_rating.getrow(u)
+                    num = item_list.nnz
+                    item_list = list(item_list.items())  # e.g. [((0,0), 3.0), ((0,1), 2.0), ...]
 
                     # index of item of sparse matrix
                     i = np.random.randint(num)
@@ -80,26 +80,29 @@ class BPR4TOPN(env.AlgoBase):
                     else:
                         i, j = item_list[i][0][-1], item_list[j][0][-1]
 
-                    s = _sigmoid(np.dot(self.P[u, :], self.Q[i, :]) -
-                                 np.dot(self.P[u, :], self.Q[j, :]))
+                    s = _sigmoid(np.dot(P[u, :], Q[i, :]) -
+                                 np.dot(P[u, :], Q[j, :]))
 
-                    self.P[u, :] += self.eta * \
-                                    (1 - s) * (self.Q[i, :] - self.Q[j, :])
-                    self.Q[i, :] += self.eta * (1 - s) * self.P[u, :]
-                    self.Q[j, :] -= self.eta * (1 - s) * self.P[u, :]
+                    P[u, :] += self.eta * (1 - s) * (Q[i, :] - Q[j, :])
+                    Q[i, :] += self.eta * (1 - s) * P[u, :]
+                    # Q[j, :] -= self.eta * (1 - s) * P[u, :]
 
-                    self.P[u, :] -= self.eta * self.reg * self.P[u, :]
-                    self.Q[i, :] -= self.eta * self.reg * self.Q[i, :]
-                    self.Q[j, :] -= self.eta * self.reg * self.Q[j, :]
+                    P[u, :] -= self.eta * self.reg * P[u, :]
+                    Q[i, :] -= self.eta * self.reg * Q[i, :]
+                    # Q[j, :] -= self.eta * self.reg * Q[j, :]
 
-        self.est = np.dot(self.P.T, self.Q)
+                    if iter_i % 100 == 0:
+                        print(str(iter_i + 1) + "/" + str(batch_size))
+
+        self.est = np.dot(P.T, Q)
 
     def estimate(self, u, i):
         try:
-            return self.est[u, i]
+            estimator = np.dot(self.P[u, :], self.Q[i, :])
         except BaseException:
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
-            return self.mean
+            estimator = self.mean
+        return estimator
 
 
 if __name__ == '__main__':
@@ -125,10 +128,11 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = BPR4TOPN(
+    algo = WAPR(
         learning_rate=0.01,
         factor_num=20,
-        max_iter=5,
+        epoch_num=1,
+        batch_num=512,
         alpha=0.01,
         eps=1e-2,
         random=False)
