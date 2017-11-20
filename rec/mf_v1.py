@@ -32,9 +32,9 @@ class MF(env.AlgoBase):
     def train(self, trainset):
 
         env.AlgoBase.train(self, trainset)
+        self.mu = self.trainset.global_mean
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
-        self.mu = self.trainset.global_mean
         bu = np.zeros([user_num, 1])
         bi = np.zeros([item_num, 1])
         P = np.zeros((user_num, self.k)) + 0.1

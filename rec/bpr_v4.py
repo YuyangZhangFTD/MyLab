@@ -8,7 +8,7 @@ def _sigmoid(x):
     return 1 / (1 + np.exp(-1 * x))
 
 
-class BPR3(env.AlgoBase):
+class BPR4(env.AlgoBase):
     def __init__(
             self,
             learning_rate=0.00001,
@@ -66,7 +66,7 @@ class BPR3(env.AlgoBase):
 
                     # get train pair randomly
                     pair = np.random.randint(num)
-                    u, i = rating_list[pair]
+                    (u, i), _ = rating_list[pair]
                     j = np.random.randint(item_num)
 
                     s = _sigmoid(np.dot(P[u, :], Q[i, :]) - np.dot(P[u, :], Q[j, :]))
@@ -118,11 +118,11 @@ if __name__ == '__main__':
 
 
     # define algorithm
-    algo = BPR3(
+    algo = BPR4(
         learning_rate=0.01,
         factor_num=20,
-        epoch_num=1,
-        batch_num=128,
+        epoch_num=5,
+        batch_num=200,
         alpha=0.01,
         eps=1e-2,
         random=False)

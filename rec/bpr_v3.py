@@ -84,8 +84,7 @@ class BPR3(env.AlgoBase):
                     else:
                         i, j = item_list[i][0][-1], item_list[j][0][-1]
 
-                    s = _sigmoid(np.dot(P[u, :], Q[i, :]) -
-                                 np.dot(P[u, :], Q[j, :]))
+                    s = _sigmoid(np.dot(P[u, :], Q[i, :]) - np.dot(P[u, :], Q[j, :]))
 
                     P[u, :] += self.eta * (1 - s) * (Q[i, :] - Q[j, :])
                     Q[i, :] += self.eta * (1 - s) * P[u, :]
