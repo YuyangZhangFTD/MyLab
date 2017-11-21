@@ -82,7 +82,6 @@ class MF(env.AlgoBase):
         self.bi = bi
 
     def estimate(self, u, i):
-
         if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
             raise env.PredictionImpossible('User and/or item is unkown.')

@@ -97,12 +97,11 @@ class WAPR(env.AlgoBase):
         self.est = np.dot(Q, P.T)
 
     def estimate(self, u, i):
-        try:
-            estimator = np.dot(self.P[u, :], self.Q[i, :])
-        except BaseException:
+        if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
-            estimator = self.mean
-        return estimator
+            raise env.PredictionImpossible('User and/or item is unkown.')
+
+        return self.est[u, i]
 
 
 if __name__ == '__main__':

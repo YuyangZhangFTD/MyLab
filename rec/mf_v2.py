@@ -73,7 +73,7 @@ class MF2(env.AlgoBase):
                     (u, i), r = uir_list[index]
 
                     hat = mu + bu[u] + bi[i] + \
-                          np.dot(P[u, :f + 1], Q[i, :f + 1])
+                        np.dot(P[u, :f + 1], Q[i, :f + 1])
                     err = r - hat
 
                     if self.ifbias:
@@ -81,12 +81,12 @@ class MF2(env.AlgoBase):
                         bi[i] += self.eta * (err - self.reg * bi[i])
 
                     P[u, :f + 1] += self.eta * \
-                                    (err * Q[i, :f + 1] - self.reg * P[u, :f + 1])
+                        (err * Q[i, :f + 1] - self.reg * P[u, :f + 1])
                     Q[i, :f + 1] += self.eta * \
-                                    (err * P[u, :f + 1] - self.reg * Q[i, :f + 1])
+                        (err * P[u, :f + 1] - self.reg * Q[i, :f + 1])
                     square_loss += (r - hat) ** 2
                 loss = 0.5 * square_loss + self.reg * \
-                                           (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
+                    (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
                 print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
         estimator = np.dot(Q, P.T)
@@ -100,23 +100,27 @@ class MF2(env.AlgoBase):
         if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
             raise env.PredictionImpossible('User and/or item is unkown.')
+
         if self.ifbias:
-            self.est[u, i] += self.mu + self.bu[u] + self.bi[i]
-        return self.est[u, i]
+            bias = self.mu + self.bu[u] + self.bi[i]
+        return self.est[u, i] + bias
 
 
 if __name__ == '__main__':
     # builtin dataset
     # data = env.Dataset.load_builtin('ml-100k')
 
-    # ===============================  load data  ===================================
+    # ===============================  load data  ============================
     # ml-latest-small
     # file_path = 'input/ml-latest-small/ratings.csv'
     # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-100k
     file_path = 'input/ml-100k/u.data'
-    reader = env.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
+    reader = env.Reader(
+        line_format='user item rating timestamp',
+        sep='\t',
+        skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
