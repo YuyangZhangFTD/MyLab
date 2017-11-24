@@ -15,6 +15,7 @@ class BPR4TOPN(env.AlgoBase):
             learning_rate=0.00001,
             factor_num=20,
             max_iter=100,
+            batch=128,
             alpha=0.01,
             eps=1e-4,
             random=True):
@@ -24,6 +25,7 @@ class BPR4TOPN(env.AlgoBase):
         self.maxiter = max_iter
         self.reg = alpha
         self.eps = eps
+        self.batch = batch
         self.random = random
         self.mean = 0
         self.P = None  # P is user vector
@@ -51,7 +53,9 @@ class BPR4TOPN(env.AlgoBase):
         dok_rating = sparse.dok_matrix(lil_rating)
 
         for iter_i in range(self.maxiter):
-            for u in range(user_num):
+            # for u in range(user_num):
+            for __ in range(self.batch):
+                u = np.random.randint(user_num)
 
                 if self.random:
                     u = np.random.randint(user_num)
@@ -125,8 +129,9 @@ if __name__ == '__main__':
     # define algorithm
     algo = BPR4TOPN(
         learning_rate=0.01,
-        factor_num=20,
-        max_iter=5,
+        factor_num=50,
+        max_iter=100,
+        batch=512,
         alpha=0.01,
         eps=1e-2,
         random=False)
