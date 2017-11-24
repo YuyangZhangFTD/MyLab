@@ -5,6 +5,11 @@ Something cool here.
 
 
 ***
+2017-11-20
+
+Update bpr and wapr.
+
+---
 2017-11-10
 
 Bpr in spark, copy from  Rodrigo and Oliveira.
