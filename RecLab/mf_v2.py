@@ -21,6 +21,7 @@ class MF2(env.AlgoBase):
             learning_rate=0.001,
             reg=0.1,
             batch_size=100,
+            batch_factor=1,
             sgd=False,
             bias=True):
 
@@ -32,6 +33,7 @@ class MF2(env.AlgoBase):
         self.reg = reg
         self.batch = batch_size
         self.withsgd = sgd
+        self.step = batch_factor
         self.est = None
         self.mu = None
         self.bu = None
@@ -57,7 +59,7 @@ class MF2(env.AlgoBase):
         rating_num = dok_rating.nnz
         uir_list = list(dok_rating.items())
 
-        for f in range(self.k):
+        for f in range(0, self.k, self.step):
             print("-" * 12 + str(f) + "-" * 12)
             for iter_i in range(self.maxiter):
                 square_loss = 0
@@ -73,20 +75,20 @@ class MF2(env.AlgoBase):
                     (u, i), r = uir_list[index]
 
                     hat = mu + bu[u] + bi[i] + \
-                        np.dot(P[u, :f + 1], Q[i, :f + 1])
+                          np.dot(P[u, :f + 1], Q[i, :f + 1])
                     err = r - hat
 
                     if self.ifbias:
                         bu[u] += self.eta * (err - self.reg * bu[u])
                         bi[i] += self.eta * (err - self.reg * bi[i])
 
-                    P[u, :f + 1] += self.eta * \
-                        (err * Q[i, :f + 1] - self.reg * P[u, :f + 1])
-                    Q[i, :f + 1] += self.eta * \
-                        (err * P[u, :f + 1] - self.reg * Q[i, :f + 1])
+                    P[u, f - self.step:f + 1] += self.eta * \
+                                                 (err * Q[i, :f + 1] - self.reg * P[u, :f + 1])
+                    Q[i, f - self.step:f + 1] += self.eta * \
+                                                 (err * P[u, :f + 1] - self.reg * Q[i, :f + 1])
                     square_loss += (r - hat) ** 2
                 loss = 0.5 * square_loss + self.reg * \
-                    (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
+                                           (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
                 print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
         estimator = np.dot(Q, P.T)
@@ -131,11 +133,12 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MF2(factor_num=100,
-               max_iter=1000,
-               learning_rate=0.0001,
+    algo = MF2(factor_num=10,
+               max_iter=500,
+               learning_rate=0.001,
                reg=0.1,
                batch_size=100,
+               batch_factor=2,
                sgd=False,
                bias=True)
 
