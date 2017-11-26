@@ -77,7 +77,7 @@ class MF(env.AlgoBase):
             print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
         estimator = np.dot(Q, P.T)
-        self.est = estimator
+        self.est = estimator.T
         self.bu = bu
         self.bi = bi
 
@@ -111,8 +111,8 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MF(factor_num=100,
-              max_iter=200,
+    algo = MF(factor_num=20,
+              max_iter=500,
               learning_rate=0.001,
               reg=0.1,
               batch_size=100,

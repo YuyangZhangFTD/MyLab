@@ -75,7 +75,7 @@ class MF2(env.AlgoBase):
                     (u, i), r = uir_list[index]
 
                     hat = mu + bu[u] + bi[i] + \
-                        np.dot(P[u, :f + 1], Q[i, :f + 1])
+                          np.dot(P[u, :f + 1], Q[i, :f + 1])
                     err = r - hat
 
                     if self.ifbias:
@@ -83,16 +83,15 @@ class MF2(env.AlgoBase):
                         bi[i] += self.eta * (err - self.reg * bi[i])
 
                     P[u, f - self.step:f + 1] += self.eta * \
-                        (err * Q[i, f - self.step:f + 1] - self.reg * P[u, f - self.step:f + 1])
+                                                 (err * Q[i, :f + 1] - self.reg * P[u, :f + 1])
                     Q[i, f - self.step:f + 1] += self.eta * \
-                        (err * P[u, f - self.step:f + 1] - self.reg * Q[i, f - self.step:f + 1])
+                                                 (err * P[u, :f + 1] - self.reg * Q[i, :f + 1])
                     square_loss += (r - hat) ** 2
                 loss = 0.5 * square_loss + self.reg * \
-                    (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
+                                           (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
                 print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
-        estimator = np.dot(Q, P.T).T
-        print(estimator.shape)
+        estimator = np.dot(Q, P.T)
         self.est = estimator
         self.mu = mu
         self.bu = bu
@@ -135,12 +134,12 @@ if __name__ == '__main__':
 
     # define algorithm
     algo = MF2(factor_num=10,
-               max_iter=100,
+               max_iter=500,
                learning_rate=0.001,
                reg=0.1,
                batch_size=100,
                batch_factor=2,
-               sgd=True,
+               sgd=False,
                bias=True)
 
     # evaluate
