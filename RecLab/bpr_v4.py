@@ -1,7 +1,8 @@
 import numpy as np
 import surprise as env
-import MyDataset as dataset
 from scipy import sparse
+
+import MyDataset as dataset
 
 
 def _sigmoid(x):
@@ -16,16 +17,18 @@ class BPR4(env.AlgoBase):
             epoch_num=5,
             batch_num=1000,
             alpha=0.01,
-            eps=1e-4,
+            implicit_num=5,
             random=True):
+
         env.AlgoBase.__init__(self)
+
         self.eta = learning_rate
         self.k = factor_num
         self.epoch = epoch_num
         self.batch = batch_num
         self.reg = alpha
-        self.eps = eps
         self.random = random
+        self.implicitNum = implicit_num
         self.mean = 0
         self.est = None
 
@@ -57,28 +60,33 @@ class BPR4(env.AlgoBase):
         rating_list = list(dok_rating.items())
 
         for epoch_i in range(self.epoch):
-            print("-"*20+"epoch:  "+str(epoch_i+1)+"-"*20)
+            print("-" * 20 + "epoch:  " + str(epoch_i + 1) + "-" * 20)
 
             for batch_i in range(self.batch):
-                print("batch:  " + str(batch_i+1) + "/" + str(self.batch))
+                print("batch:  " + str(batch_i + 1) + "/" + str(self.batch))
+                loss = 0
 
                 for iter_i in range(batch_size):
 
                     # get train pair randomly
                     pair = np.random.randint(num)
                     (u, i), _ = rating_list[pair]
-                    j = np.random.randint(item_num)
+                    for __ in range(self.implicitNum):
+                        j = np.random.randint(item_num)
 
-                    s = _sigmoid(np.dot(P[u, :], Q[i, :]) - np.dot(P[u, :], Q[j, :]))
+                        s = _sigmoid(np.dot(P[u, :], Q[i, :]) - np.dot(P[u, :], Q[j, :]))
 
-                    P[u, :] += self.eta * (1 - s) * (Q[i, :] - Q[j, :])
-                    Q[i, :] += self.eta * (1 - s) * P[u, :]
-                    Q[j, :] -= self.eta * (1 - s) * P[u, :]
+                        P[u, :] += self.eta * (1 - s) * (Q[i, :] - Q[j, :])
+                        Q[i, :] += self.eta * (1 - s) * P[u, :]
+                        Q[j, :] -= self.eta * (1 - s) * P[u, :]
 
-                    P[u, :] -= self.eta * self.reg * P[u, :]
-                    Q[i, :] -= self.eta * self.reg * Q[i, :]
-                    Q[j, :] -= self.eta * self.reg * Q[j, :]
+                        P[u, :] -= self.eta * self.reg * P[u, :]
+                        Q[i, :] -= self.eta * self.reg * Q[i, :]
+                        Q[j, :] -= self.eta * self.reg * Q[j, :]
 
+                    loss += np.log(s)
+                loss -= self.reg * (np.sum(P ** 2) + np.sum(Q ** 2))
+                print("batch iteration at " + str(batch_i) + "  loss: " + str(loss))
         self.est = np.dot(Q, P.T)
 
     def estimate(self, u, i):
@@ -111,10 +119,10 @@ if __name__ == '__main__':
     # data.split(n_folds=5)
 
     file_path = 'input/ml-100k/u.data'
-    reader = dataset.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=True, threshold=3.5)
+    reader = dataset.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=True,
+                            threshold=3.5)
     data = dataset.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
-
 
     # define algorithm
     algo = BPR4(
@@ -123,7 +131,7 @@ if __name__ == '__main__':
         epoch_num=5,
         batch_num=200,
         alpha=0.01,
-        eps=1e-2,
+        implicit_num=5,
         random=False)
 
     # evaluate

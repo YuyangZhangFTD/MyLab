@@ -6,10 +6,10 @@ from scipy import sparse
 class MF2(env.AlgoBase):
     """
         train factor in a new way
-        for f in range(n_factors):
+        for f_batch in range(n_factors):
             for _ in range(n_iter):
                 for u, i, r in all_ratings:
-                    err = r_ui - <p[u, :f+1], q[i, :f+1]>
+                    err = r_ui - <p[u, f_batch], q[i, f_batch]>
                     update p[u, f]
                     update q[i, f]
     """
@@ -82,13 +82,13 @@ class MF2(env.AlgoBase):
                         bu[u] += self.eta * (err - self.reg * bu[u])
                         bi[i] += self.eta * (err - self.reg * bi[i])
 
-                    P[u, f - self.step:f + 1] += self.eta * \
-                                                 (err * Q[i, :f + 1] - self.reg * P[u, :f + 1])
-                    Q[i, f - self.step:f + 1] += self.eta * \
-                                                 (err * P[u, :f + 1] - self.reg * Q[i, :f + 1])
+                    P[u, f - self.step:f + 1] += self.eta * (
+                        err * Q[i, f - self.step:f + 1] - self.reg * P[u, f - self.step:f + 1])
+                    Q[i, f - self.step:f + 1] += self.eta * (
+                        err * P[u, f - self.step:f + 1] - self.reg * Q[i, f - self.step:f + 1])
                     square_loss += (r - hat) ** 2
-                loss = 0.5 * square_loss + self.reg * \
-                                           (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
+                loss = 0.5 * square_loss + self.reg * (
+                    np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
                 print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
         estimator = np.dot(Q, P.T)
