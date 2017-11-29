@@ -17,8 +17,7 @@ class BPR4(env.AlgoBase):
             epoch_num=5,
             batch_num=1000,
             alpha=0.01,
-            implicit_num=5,
-            random=True):
+            implicit_num=5):
 
         env.AlgoBase.__init__(self)
 
@@ -27,7 +26,6 @@ class BPR4(env.AlgoBase):
         self.epoch = epoch_num
         self.batch = batch_num
         self.reg = alpha
-        self.random = random
         self.implicitNum = implicit_num
         self.mean = 0
         self.est = None
@@ -53,40 +51,42 @@ class BPR4(env.AlgoBase):
         # to dok_matrix for convenience
         dok_rating = sparse.dok_matrix(lil_rating)
 
-        # batch size = train number / batch number
-        batch_size = int(dok_rating.nnz / self.batch)
-
         num = dok_rating.nnz
         rating_list = list(dok_rating.items())
 
         for epoch_i in range(self.epoch):
             print("-" * 20 + "epoch:  " + str(epoch_i + 1) + "-" * 20)
+            batch_i = 1
+            loss = 0
 
-            for batch_i in range(self.batch):
-                print("batch:  " + str(batch_i + 1) + "/" + str(self.batch))
-                loss = 0
+            for sample_i in range(num):
 
-                for iter_i in range(batch_size):
+                if sample_i % self.batch == 0:
+                    print("batch:  " + str(batch_i) + "/" + str(self.batch))
+                    batch_i += 1
 
-                    # get train pair randomly
-                    pair = np.random.randint(num)
-                    (u, i), _ = rating_list[pair]
-                    for __ in range(self.implicitNum):
-                        j = np.random.randint(item_num)
+                # get train pair randomly
+                # pair = np.random.randint(num)
 
-                        s = _sigmoid(np.dot(P[u, :], Q[i, :]) - np.dot(P[u, :], Q[j, :]))
+                (u, i), _ = rating_list[sample_i]
+                for __ in range(self.implicitNum):
+                    j = np.random.randint(item_num)
 
-                        P[u, :] += self.eta * (1 - s) * (Q[i, :] - Q[j, :])
-                        Q[i, :] += self.eta * (1 - s) * P[u, :]
-                        Q[j, :] -= self.eta * (1 - s) * P[u, :]
+                    s = _sigmoid(np.dot(P[u, :], Q[i, :]) - np.dot(P[u, :], Q[j, :]))
 
-                        P[u, :] -= self.eta * self.reg * P[u, :]
-                        Q[i, :] -= self.eta * self.reg * Q[i, :]
-                        Q[j, :] -= self.eta * self.reg * Q[j, :]
+                    P[u, :] += self.eta * (1 - s) * (Q[i, :] - Q[j, :])
+                    Q[i, :] += self.eta * (1 - s) * P[u, :]
+                    Q[j, :] -= self.eta * (1 - s) * P[u, :]
 
-                    loss += np.log(s)
-                loss -= self.reg * (np.sum(P ** 2) + np.sum(Q ** 2))
-                print("batch iteration at " + str(batch_i) + "  loss: " + str(loss))
+                    P[u, :] -= self.eta * self.reg * P[u, :]
+                    Q[i, :] -= self.eta * self.reg * Q[i, :]
+                    Q[j, :] -= self.eta * self.reg * Q[j, :]
+
+                loss += np.log(s)
+
+            loss -= self.reg * (np.sum(P ** 2) + np.sum(Q ** 2))
+            print("Epoch iteration at " + str(epoch_i) + "  loss: " + str(loss))
+
         self.est = np.dot(Q, P.T)
 
     def estimate(self, u, i):
@@ -131,8 +131,7 @@ if __name__ == '__main__':
         epoch_num=5,
         batch_num=200,
         alpha=0.01,
-        implicit_num=5,
-        random=False)
+        implicit_num=5)
 
     # evaluate
     # topn.evaluate_topn(algo, data, top_n=100, threshold=4.5)
