@@ -133,7 +133,7 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MF2(factor_num=10,
+    algo = MF2(factor_num=30,
                max_iter=500,
                learning_rate=0.001,
                reg=0.1,
