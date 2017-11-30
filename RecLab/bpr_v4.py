@@ -15,7 +15,7 @@ class BPR4(env.AlgoBase):
             learning_rate=0.00001,
             factor_num=20,
             epoch_num=5,
-            batch_num=1000,
+            batch_size=1000,
             alpha=0.01,
             implicit_num=5):
 
@@ -24,7 +24,7 @@ class BPR4(env.AlgoBase):
         self.eta = learning_rate
         self.k = factor_num
         self.epoch = epoch_num
-        self.batch = batch_num
+        self.batch = batch_size
         self.reg = alpha
         self.implicitNum = implicit_num
         self.mean = 0
@@ -62,7 +62,7 @@ class BPR4(env.AlgoBase):
             for sample_i in range(num):
 
                 if sample_i % self.batch == 0:
-                    print("batch:  " + str(batch_i) + "/" + str(self.batch))
+                    print("batch:  " + str(batch_i))
                     batch_i += 1
 
                 # get train pair randomly
@@ -87,7 +87,7 @@ class BPR4(env.AlgoBase):
             loss -= self.reg * (np.sum(P ** 2) + np.sum(Q ** 2))
             print("Epoch iteration at " + str(epoch_i) + "  loss: " + str(loss))
 
-        self.est = np.dot(Q, P.T)
+        self.est = np.dot(Q, P.T).T
 
     def estimate(self, u, i):
         if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
@@ -128,8 +128,8 @@ if __name__ == '__main__':
     algo = BPR4(
         learning_rate=0.01,
         factor_num=20,
-        epoch_num=5,
-        batch_num=200,
+        epoch_num=10,
+        batch_size=1000,
         alpha=0.01,
         implicit_num=5)
 
