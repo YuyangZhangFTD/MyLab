@@ -8,6 +8,11 @@ def _sigmoid(x):
 
 
 class WAPR(env.AlgoBase):
+
+    """
+        WAPR, BPR without updating negative sample weight
+    """
+
     def __init__(
             self,
             learning_rate=0.00001,
@@ -17,7 +22,9 @@ class WAPR(env.AlgoBase):
             alpha=0.01,
             eps=1e-4,
             random=True):
+
         env.AlgoBase.__init__(self)
+
         self.eta = learning_rate
         self.k = factor_num
         self.epoch = epoch_num
@@ -49,39 +56,30 @@ class WAPR(env.AlgoBase):
         # to dok_matrix for convenience
         dok_rating = sparse.dok_matrix(lil_rating)
 
-        # batch size = train number / batch number
-        batch_size = int(dok_rating.nnz / self.batch)
+        num = dok_rating.nnz
+        rating_list = list(dok_rating.items())
 
         for epoch_i in range(self.epoch):
             print("-" * 20 + "epoch:  " + str(epoch_i + 1) + "-" * 20)
+            batch_i = 1
+            loss = 0
 
-            for batch_i in range(self.batch):
-                print("=" * 20 + "batch:  " + str(batch_i + 1) + "=" * 20)
+            for sample_i in range(num):
 
-                for iter_i in range(batch_size):
+                if sample_i % self.batch == 0:
+                    print("batch:  " + str(batch_i))
+                    batch_i += 1
 
-                    # get train pair randomly
-                    u = np.random.randint(user_num)
-                    item_list = dok_rating.getrow(u)
-                    num = item_list.nnz
-                    item_list = list(item_list.items())  # e.g. [((0,0), 3.0), ((0,1), 2.0), ...]
+                # get train pair randomly
+                # pair = np.random.randint(num)
 
-                    # index of item of sparse matrix
-                    i = np.random.randint(num)
-                    j = np.random.randint(num)
+                (u, i), _ = rating_list[sample_i]
+                for __ in range(self.implicitNum):
+                    j = np.random.randint(item_num)
 
-                    if i == j or item_list[i][-1] == item_list[j][-1]:
-                        continue
+                    s = _sigmoid(np.dot(P[u, :], Q[i, :]) - np.dot(P[u, :], Q[j, :]))
 
-                    # convert index of rating value sparse matrix
-                    # to index of rating matrix
-                    if item_list[i][-1] < item_list[j][-1]:
-                        i, j = item_list[j][0][-1], item_list[i][0][-1]
-                    else:
-                        i, j = item_list[i][0][-1], item_list[j][0][-1]
-
-                    s = _sigmoid(np.dot(P[u, :], Q[i, :]) -
-                                 np.dot(P[u, :], Q[j, :]))
+                    # the negative sample won't be updated
 
                     P[u, :] += self.eta * (1 - s) * (Q[i, :] - Q[j, :])
                     Q[i, :] += self.eta * (1 - s) * P[u, :]
@@ -91,10 +89,12 @@ class WAPR(env.AlgoBase):
                     Q[i, :] -= self.eta * self.reg * Q[i, :]
                     # Q[j, :] -= self.eta * self.reg * Q[j, :]
 
-                    if iter_i % 100 == 0:
-                        print(str(iter_i + 1) + "/" + str(batch_size))
+                loss += np.log(s)
 
-        self.est = np.dot(Q, P.T)
+            loss -= self.reg * (np.sum(P ** 2) + np.sum(Q ** 2))
+            print("Epoch iteration at " + str(epoch_i) + "  loss: " + str(loss))
+
+        self.est = np.dot(Q, P.T).T
 
     def estimate(self, u, i):
         if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):

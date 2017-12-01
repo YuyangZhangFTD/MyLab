@@ -3,18 +3,10 @@ import surprise as env
 from scipy import sparse
 
 
-class MF2(env.AlgoBase):
+class MFImplicit1(env.AlgoBase):
     """
-        gradient boosting matrix factorization
-        train factor in a new way
-        for f in range(n_factors):
-            for _ in range(n_iter):
-                for u, i, r in all_ratings:
-                    err = r_ui - <p[u, :f+1], q[i, :f+1]>
-                    update p[u, f]
-                    update q[i, f]
+        matrix factorization for implicit feedback
     """
-
     def __init__(
             self,
             factor_num=10,
@@ -76,20 +68,20 @@ class MF2(env.AlgoBase):
                     (u, i), r = uir_list[index]
 
                     hat = mu + bu[u] + bi[i] + \
-                        np.dot(P[u, :f + 1], Q[i, :f + 1])
+                          np.dot(P[u, :f + 1], Q[i, :f + 1])
                     err = r - hat
 
                     if self.ifbias:
                         bu[u] += self.eta * (err - self.reg * bu[u])
                         bi[i] += self.eta * (err - self.reg * bi[i])
 
-                    P[u, f - self.step:f + 1] += self.eta * \
-                        (err * Q[i, f - self.step:f + 1] - self.reg * P[u, f - self.step:f + 1])
-                    Q[i, f - self.step:f + 1] += self.eta * \
-                        (err * P[u, f - self.step:f + 1] - self.reg * Q[i, f - self.step:f + 1])
+                    P[u, f - self.step:f + 1] += self.eta * (
+                        err * Q[i, f - self.step:f + 1] - self.reg * P[u, f - self.step:f + 1])
+                    Q[i, f - self.step:f + 1] += self.eta * (
+                        err * P[u, f - self.step:f + 1] - self.reg * Q[i, f - self.step:f + 1])
                     square_loss += (r - hat) ** 2
-                loss = 0.5 * square_loss + self.reg * \
-                    (np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
+                loss = 0.5 * square_loss + self.reg * (
+                    np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
                 print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
         estimator = np.dot(P, Q.T)
@@ -133,14 +125,14 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MF2(factor_num=10,
+    algo = MFImplicit1(factor_num=20,
                max_iter=100,
                learning_rate=0.001,
                reg=0.1,
                batch_size=100,
                batch_factor=2,
-               sgd=True,
+               sgd=False,
                bias=True)
 
     # evaluate
-    env.evaluate(algo, data, measures=['rmse', 'mae', 'fcp'])
+    env.evaluate(algo, data, measures=['fcp'])

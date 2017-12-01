@@ -42,7 +42,6 @@ from six import iteritems
 from six.moves import input
 from six.moves import range
 
-import mf_v2 as mf
 
 # from six.moves.urllib.request import urlretrieve
 
@@ -498,7 +497,7 @@ class Reader():
             raise ValueError(('Impossible to parse line.' +
                               ' Check the line_format  and sep parameters.'))
 
-        return uid, iid, r + self.offset, timestamp
+        return uid, iid, float(r) + self.offset, timestamp
 
 
 class Trainset:
@@ -758,7 +757,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------------------
     # ml-100k
     file_path = 'input/ml-100k/u.data'
-    reader = Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=True, threshold=3.5)
+    reader = Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=False, threshold=3.5)
     # ------------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
@@ -767,12 +766,6 @@ if __name__ == '__main__':
     data = Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
-    algo = mf.MF2(factor_num=100,
-                  max_iter=50,
-                  learning_rate=0.001,
-                  reg=0.1,
-                  batch_size=200,
-                  sgd=False,
-                  bias=True)
+    algo = env.KNNBaseline()
 
-    env.evaluate(algo, data, measures=['rmse', 'mae', 'fcp'], verbose=2)
+    env.evaluate(algo, data, measures=['fcp'], verbose=2)

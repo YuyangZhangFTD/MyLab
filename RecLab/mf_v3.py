@@ -3,17 +3,10 @@ import surprise as env
 from scipy import sparse
 
 
-class MF2(env.AlgoBase):
+class MF3(env.AlgoBase):
     """
-        train factor in a new way
-        for f_batch in range(n_factors):
-            for _ in range(n_iter):
-                for u, i, r in all_ratings:
-                    err = r_ui - <p[u, f_batch], q[i, f_batch]>
-                    update p[u, f]
-                    update q[i, f]
+        batch gradient boosting matrix factorization
     """
-
     def __init__(
             self,
             factor_num=10,
@@ -91,7 +84,7 @@ class MF2(env.AlgoBase):
                     np.sum(bu ** 2) + np.sum(bi ** 2) + np.sum(P ** 2) + np.sum(Q ** 2))
                 print("iteration at " + str(iter_i + 1) + "  loss: " + str(loss))
 
-        estimator = np.dot(Q, P.T)
+        estimator = np.dot(P, Q.T)
         self.est = estimator
         self.mu = mu
         self.bu = bu
@@ -103,8 +96,7 @@ class MF2(env.AlgoBase):
             print('unknown input: u-->' + str(u) + '  i-->' + str(i))
             raise env.PredictionImpossible('User and/or item is unkown.')
 
-        if self.ifbias:
-            bias = self.mu + self.bu[u] + self.bi[i]
+        bias = self.mu + self.bu[u] + self.bi[i] if self.ifbias else 0
         return self.est[u, i] + bias
 
 
@@ -133,8 +125,8 @@ if __name__ == '__main__':
     data.split(n_folds=5)
 
     # define algorithm
-    algo = MF2(factor_num=30,
-               max_iter=500,
+    algo = MF3(factor_num=20,
+               max_iter=100,
                learning_rate=0.001,
                reg=0.1,
                batch_size=100,
