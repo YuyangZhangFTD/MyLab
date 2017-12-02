@@ -19,7 +19,7 @@ import numpy as np
 from six import iteritems
 
 
-def rmse(predictions, **kwargs):
+def rmse(predictions, verbose=True, **kwargs):
     """Compute RMSE (Root Mean Squared Error).
 
     .. math::
@@ -39,7 +39,6 @@ def rmse(predictions, **kwargs):
     Raises:
         ValueError: When ``predictions`` is empty.
     """
-    verbose = kwargs['verbose']
 
     if not predictions:
         raise ValueError('Prediction list is empty.')
@@ -54,7 +53,7 @@ def rmse(predictions, **kwargs):
     return rmse_
 
 
-def mae(predictions, **kwargs):
+def mae(predictions, verbose=True, **kwargs):
     """Compute MAE (Mean Absolute Error).
 
     .. math::
@@ -74,7 +73,6 @@ def mae(predictions, **kwargs):
     Raises:
         ValueError: When ``predictions`` is empty.
     """
-    verbose = kwargs['verbose']
 
     if not predictions:
         raise ValueError('Prediction list is empty.')
@@ -88,7 +86,7 @@ def mae(predictions, **kwargs):
     return mae_
 
 
-def fcp(predictions, **kwargs):
+def fcp(predictions, verbose=True, **kwargs):
     """Compute FCP (Fraction of Concordant Pairs).
 
     Computed as described in paper `Collaborative Filtering on Ordinal User
@@ -108,7 +106,6 @@ def fcp(predictions, **kwargs):
     Raises:
         ValueError: When ``predictions`` is empty.
     """
-    verbose = kwargs['verbose']
 
     if not predictions:
         raise ValueError('Prediction list is empty.')
@@ -143,8 +140,8 @@ def fcp(predictions, **kwargs):
     return fcp_
 
 
-def hr(predictions, **kwargs):
-    """Compute hit rate
+def hr(predictions, verbose=True, **kwargs):
+    """Compute hit rate for implicit feedback
 
    #users is the total number of users, and #hits is the number of users
    whose item in the testing set is recommended (i.e., hit) in the size-N recommendation list.
@@ -175,8 +172,6 @@ def hr(predictions, **kwargs):
         ValueError: When ``predictions`` is empty.
     """
 
-    verbose = kwargs['verbose']
-
     if not predictions:
         raise ValueError('Prediction list is empty.')
 
@@ -195,7 +190,6 @@ def hr(predictions, **kwargs):
 
     for _, preds in iteritems(predictions_u):
 
-        # TODO, to be optimized, and it should be more pythonic
         testset = []
         clicked_list = []
         for tple in preds:
@@ -221,13 +215,13 @@ def hr(predictions, **kwargs):
     if verbose:
         print('HR:  {0:1.4f}'.format(hr_))
 
-    print('testset:  '+str(len(predictions)) + '   not enough sample: '+str(record))
+    print('testset:  ' + str(len(predictions)) + '   not enough sample: ' + str(record))
 
     return hr_
 
 
-def arhr(predictions, **kwargs):
-    """Compute Average Reciprocal Hit-Rank
+def arhr(predictions, verbose=True, **kwargs):
+    """Compute Average Reciprocal Hit-Rank for implicit feedback
 
     if an item of a user is hit, p is the position of the item in the ranked recommendation list.
     ARHR is a weighted version of HR and it measures how strongly an item is recommended,
@@ -254,8 +248,6 @@ def arhr(predictions, **kwargs):
         ValueError: When ``predictions`` is empty.
     """
 
-    verbose = kwargs['verbose']
-
     if not predictions:
         raise ValueError('Prediction list is empty.')
 
@@ -274,7 +266,6 @@ def arhr(predictions, **kwargs):
 
     for _, preds in iteritems(predictions_u):
 
-        # TODO, to be optimized
         testset = []
         clicked_list = []
         for tple in preds:
@@ -284,7 +275,7 @@ def arhr(predictions, **kwargs):
                 testset.append(tple)
 
         if len(testset) < topN:
-            record+=1
+            record += 1
             continue
 
         if len(testset) < topN or len(clicked_list) < 1:
@@ -306,14 +297,12 @@ def arhr(predictions, **kwargs):
     if verbose:
         print('ARHR:  {0:1.4f}'.format(arhr_))
 
-    print('testset:  '+str(len(predictions)) + '   not enough sample: '+str(record))
+    print('testset:  ' + str(len(predictions)) + '   not enough sample: ' + str(record))
 
     return arhr_
 
 
-def _hr_arhr(predictions, **kwargs):
-    verbose = kwargs['verbose']
-
+def _hr_arhr(predictions, verbose=True, **kwargs):
     if not predictions:
         raise ValueError('Prediction list is empty.')
 
@@ -363,6 +352,6 @@ def _hr_arhr(predictions, **kwargs):
         print('AR:   {0:1.4f}'.format(hr_))
         print('ARHR:  {0:1.4f}'.format(arhr_))
 
-    print('testset:  '+str(len(predictions)) + '   not enough sample: '+str(record))
+    print('testset:  ' + str(len(predictions)) + '   not enough sample: ' + str(record))
 
     return (hr_, arhr_)

@@ -85,10 +85,10 @@ class BPR4(env.AlgoBase):
                     Q[i, :] -= self.eta * self.reg * Q[i, :]
                     Q[j, :] -= self.eta * self.reg * Q[j, :]
 
-                loss += np.log(s)
+                    loss += np.log(s)
 
             loss -= self.reg * (np.sum(P ** 2) + np.sum(Q ** 2))
-            print("Epoch iteration at " + str(epoch_i) + "  loss: " + str(loss))
+            print("Epoch iteration at " + str(epoch_i) + "  sampled loss: " + str(loss))
 
         self.est = np.dot(Q, P.T).T
 
