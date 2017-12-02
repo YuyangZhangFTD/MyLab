@@ -38,10 +38,10 @@ class MFImplicit1(env.AlgoBase):
         user_num = self.trainset.n_users
         item_num = self.trainset.n_items
         mu = self.trainset.global_mean
-        bu = np.zeros([user_num, 1])
-        bi = np.zeros([item_num, 1])
-        P = np.zeros((user_num, self.k)) + 0.1
-        Q = np.zeros((item_num, self.k)) + 0.1
+        bu = np.random.random([user_num, 1])
+        bi = np.random.random([item_num, 1])
+        P = np.random.random((user_num, self.k)) / 10
+        Q = np.random.random((item_num, self.k)) / 10
 
         lil_rating = sparse.lil_matrix((user_num, item_num))
 

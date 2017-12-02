@@ -48,8 +48,8 @@ class BPR4(env.AlgoBase):
 
         # rating = sparse_rating.toarray()
 
-        P = np.zeros((user_num, self.k)) + 0.1
-        Q = np.zeros((item_num, self.k)) + 0.1
+        P = np.random.random((user_num, self.k)) / 10
+        Q = np.random.random((item_num, self.k)) / 10
 
         # to dok_matrix for convenience
         dok_rating = sparse.dok_matrix(lil_rating)
