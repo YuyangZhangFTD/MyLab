@@ -319,22 +319,22 @@ if __name__ == '__main__':
     # builtin dataset
     # data = env.Dataset.load_builtin('ml-100k')
 
-    # ===============================  load data  ===================================
+    # ===============================  load data  ============================
     # ml-latest-small
     file_path = 'input/ml-latest-small/ratings.csv'
     reader = Dataset.Reader(line_format='user item rating timestamp', sep=',',
                             skip_lines=1, implicit=False, threshold=3.5)
-    # ------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
     # ml-100k
     # file_path = 'input/ml-100k/u.data'
     # reader = Dataset.Reader(line_format='user item rating timestamp',
     #   sep='\t', skip_lines=1, implicit=True, threshold=3.5)
-    # ------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
     # reader = env.Reader(line_format='user item rating timestamp', sep=',',
     #  skip_lines=1)
-    # ==============================================================================
+    # ========================================================================
     data = Dataset.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
