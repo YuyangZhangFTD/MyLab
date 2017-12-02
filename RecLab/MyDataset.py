@@ -42,7 +42,6 @@ from six import iteritems
 from six.moves import input
 from six.moves import range
 
-
 # from six.moves.urllib.request import urlretrieve
 
 # directory where builtin datasets are stored. For now it's in the home
@@ -328,11 +327,14 @@ class DatasetAutoFolds(Dataset):
         elif df is not None:
             self.df = df
             if self.reader.implicit:
-                self.raw_ratings = [(uid, iid, 1 if float(r) > self.reader.threshold else 0, None)
-                                    for (uid, iid, r) in self.df.itertuples(index=False)]
+                self.raw_ratings = [(uid, iid, 1 if float(
+                    r) > self.reader.threshold else 0, None)
+                                    for (uid, iid, r) in
+                                    self.df.itertuples(index=False)]
             else:
-                self.raw_ratings = [(uid, iid, float(r) + self.reader.offset, None)
-                                    for (uid, iid, r) in self.df.itertuples(index=False)]
+                self.raw_ratings = [
+                    (uid, iid, float(r) + self.reader.offset, None)
+                    for (uid, iid, r) in self.df.itertuples(index=False)]
 
 
         else:
@@ -425,11 +427,13 @@ class Reader():
     """
 
     def __init__(self, name=None, line_format='user item rating', sep=None,
-                 rating_scale=(1, 5), skip_lines=0, implicit=False, threshold=None):
+                 rating_scale=(1, 5), skip_lines=0, implicit=False,
+                 threshold=None):
 
         if implicit and threshold is None:
-            raise ValueError('Must specify the threshold for transforming explicit data to implicit data,'
-                             'use threshold=0 for implicit data')
+            raise ValueError(
+                'Must specify the threshold for transforming explicit data to implicit data,'
+                'use threshold=0 for implicit data')
 
         if name:
             try:
@@ -757,7 +761,8 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------------------
     # ml-100k
     file_path = 'input/ml-100k/u.data'
-    reader = Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=False, threshold=3.5)
+    reader = Reader(line_format='user item rating timestamp', sep='\t',
+                    skip_lines=1, implicit=False, threshold=3.5)
     # ------------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'

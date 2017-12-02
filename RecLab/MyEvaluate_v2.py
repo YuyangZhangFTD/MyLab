@@ -18,7 +18,7 @@ from joblib import delayed
 import MyAccuracy as accuracy
 import MyDataset as Dataset
 import surprise as env
-from mf_v3 import MF3
+from bpr_v4 import BPR4 as bpr
 
 
 def evaluate(algo, data, measures=['rmse', 'mae'], with_dump=False,
@@ -73,7 +73,8 @@ def evaluate(algo, data, measures=['rmse', 'mae'], with_dump=False,
         # compute needed performance statistics
         for measure in measures:
             f = getattr(accuracy, measure.lower())
-            performances[measure].append(f(predictions, verbose=verbose, topN=topN))
+            performances[measure].append(
+                f(predictions, verbose=verbose, topN=topN))
 
         # if with_dump:
         #
@@ -320,29 +321,28 @@ if __name__ == '__main__':
 
     # ===============================  load data  ===================================
     # ml-latest-small
-    # file_path = 'input/ml-latest-small/ratings.csv'
-    # reader = Dataset.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1, implicit=False,
-    #                         threshold=3.5)
+    file_path = 'input/ml-latest-small/ratings.csv'
+    reader = Dataset.Reader(line_format='user item rating timestamp', sep=',',
+                            skip_lines=1, implicit=False, threshold=3.5)
     # ------------------------------------------------------------------------------
     # ml-100k
-    file_path = 'input/ml-100k/u.data'
-    reader = Dataset.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=True,
-                            threshold=3.5)
+    # file_path = 'input/ml-100k/u.data'
+    # reader = Dataset.Reader(line_format='user item rating timestamp',
+    #   sep='\t', skip_lines=1, implicit=True, threshold=3.5)
     # ------------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
-    # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
+    # reader = env.Reader(line_format='user item rating timestamp', sep=',',
+    #  skip_lines=1)
     # ==============================================================================
     data = Dataset.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
-    algo = MF3(factor_num=20,
-               max_iter=100,
-               learning_rate=0.001,
-               reg=0.1,
-               batch_size=100,
-               batch_factor=2,
-               sgd=False,
-               bias=True)
-
-    evaluate(algo, data, measures=['fcp', 'hr', 'arhr'], verbose=1, topN=10)
+    algo = bpr(
+        learning_rate=0.01,
+        factor_num=40,
+        epoch_num=20,
+        batch_size=1000,
+        alpha=0.01,
+        implicit_num=10)
+    evaluate(algo, data, measures=['hr', 'arhr'], verbose=1, topN=10)

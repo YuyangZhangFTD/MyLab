@@ -59,14 +59,9 @@ class BPR4(env.AlgoBase):
 
         for epoch_i in range(self.epoch):
             print("-" * 20 + "epoch:  " + str(epoch_i + 1) + "-" * 20)
-            batch_i = 1
             loss = 0
 
             for sample_i in range(num):
-
-                if sample_i % self.batch == 0:
-                    print("batch:  " + str(batch_i))
-                    batch_i += 1
 
                 # get train pair randomly
                 # pair = np.random.randint(num)
@@ -130,11 +125,11 @@ if __name__ == '__main__':
     # define algorithm
     algo = BPR4(
         learning_rate=0.01,
-        factor_num=20,
-        epoch_num=10,
+        factor_num=40,
+        epoch_num=20,
         batch_size=1000,
         alpha=0.01,
-        implicit_num=5)
+        implicit_num=10)
 
     # evaluate
     # topn.evaluate_topn(algo, data, top_n=100, threshold=4.5)
