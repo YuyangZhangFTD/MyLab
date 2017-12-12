@@ -13,6 +13,7 @@ class BPR4(env.AlgoBase):
     """
         Bayesian Personalized Ranking
     """
+
     def __init__(
             self,
             learning_rate=0.00001,

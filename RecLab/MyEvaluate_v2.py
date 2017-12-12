@@ -16,13 +16,12 @@ from joblib import Parallel
 from joblib import delayed
 
 import MyAccuracy as accuracy
-import MyDataset as Dataset
+import MyDataset as MyDataset
 import surprise as env
-from bpr_v4 import BPR4 as bpr
 
 
 def evaluate(algo, data, measures=['rmse', 'mae'], with_dump=False,
-             dump_dir=None, verbose=1, topN=0):
+             dump_dir=None, verbose=1, topN=0, leave_out_num=1):
     """Evaluate the performance of the algorithm on given data.
 
     Depending on the nature of the ``data`` parameter, it may or may not
@@ -69,12 +68,16 @@ def evaluate(algo, data, measures=['rmse', 'mae'], with_dump=False,
         # train and test algorithm. Keep all rating predictions in a list
         algo.train(trainset)
         predictions = algo.test(testset, verbose=(verbose == 2))
+        predictions_other = None
+        if topN > 0:
+            predictions_other = algo.test(trainset.build_anti_testset(fill=-1), verbose=(verbose == 2))
 
         # compute needed performance statistics
         for measure in measures:
             f = getattr(accuracy, measure.lower())
             performances[measure].append(
-                f(predictions, verbose=verbose, topN=topN))
+                f(predictions, predictions_other=predictions_other, topN=topN, leave_out_num=leave_out_num,
+                  verbose=(verbose == 2)))
 
         # if with_dump:
         #
@@ -321,28 +324,30 @@ if __name__ == '__main__':
 
     # ===============================  load data  ============================
     # ml-latest-small
-    file_path = 'input/ml-latest-small/ratings.csv'
-    reader = Dataset.Reader(line_format='user item rating timestamp', sep=',',
-                            skip_lines=1, implicit=False, threshold=3.5)
+    # file_path = 'input/ml-latest-small/ratings.csv'
+    # reader = Dataset.Reader(line_format='user item rating timestamp', sep=',',
+    #                         skip_lines=1, implicit=False, threshold=3.5)
     # ------------------------------------------------------------------------
     # ml-100k
-    # file_path = 'input/ml-100k/u.data'
-    # reader = Dataset.Reader(line_format='user item rating timestamp',
-    #   sep='\t', skip_lines=1, implicit=True, threshold=3.5)
+    file_path = 'input/ml-100k/u.data'
+    reader = MyDataset.Reader(line_format='user item rating timestamp',
+                              sep='\t', skip_lines=1, implicit=True,
+                              threshold=4)
     # ------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
     # reader = env.Reader(line_format='user item rating timestamp', sep=',',
     #  skip_lines=1)
     # ========================================================================
-    data = Dataset.Dataset.load_from_file(file_path, reader=reader)
+    data = MyDataset.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
-    algo = bpr(
-        learning_rate=0.01,
-        factor_num=40,
-        epoch_num=20,
-        batch_size=1000,
-        alpha=0.01,
-        implicit_num=10)
-    evaluate(algo, data, measures=['hr', 'arhr'], verbose=1, topN=10)
+    # algo = bpr(
+    #     learning_rate=0.01,
+    #     factor_num=40,
+    #     epoch_num=20,
+    #     batch_size=1000,
+    #     alpha=0.01,
+    #     implicit_num=10)
+    algo = env.SVD()
+    evaluate(algo, data, measures=['fcp', 'hr', 'arhr'], verbose=1, topN=10)

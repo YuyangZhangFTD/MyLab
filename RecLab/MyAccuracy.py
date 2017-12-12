@@ -17,6 +17,7 @@ from __future__ import (absolute_import, division, print_function,
 from collections import defaultdict
 import numpy as np
 from six import iteritems
+import random
 
 
 def rmse(predictions, verbose=True, **kwargs):
@@ -174,45 +175,50 @@ def hr(predictions, verbose=True, **kwargs):
         ValueError: When ``predictions`` is empty.
     """
 
-    if not predictions:
-        raise ValueError('Prediction list is empty.')
+    # if not predictions:
+    #     raise ValueError('Prediction list is empty.')
 
-    if not kwargs['topN']:
-        raise ValueError('The number of top list is required, "topN": xx')
+    if not kwargs['topN'] and not kwargs['predictions_other'] and not kwargs['leave_out_num']:
+        raise ValueError('Lack of parameters')
     else:
         topN = kwargs['topN']
+        predictions_other = kwargs['predictions_other']
+        leave_out_num = kwargs['leave_out_num']
 
-    predictions_u = defaultdict(list)
+    # ii_set        [(u, i), ...]
+    # clicked_u     {u: [(i, est), ...]}
+    # test_set      [(u, i, est), ...]
+    # test_set_u    {u: [(i, est), ...]}
 
+    ui_set = set()
+    clicked_u = defaultdict(list)
     for u, i, r, est, _ in predictions:
-        predictions_u[u].append((i, r, est))
+        if int(r) == 1:
+            clicked_u[u].append((i, est))
+        ui_set.add((u, i))
+
+    test_set = [(u, i, est) for (u, i, r, est, _) in predictions_other if (u, i) not in ui_set]
+
+    test_set_u = defaultdict(list)
+    for u, i, est in test_set:
+        test_set_u[u].append((i, est))
 
     hit = 0
     record = 0
-
-    for _, preds in iteritems(predictions_u):
-
-        testset = []
-        clicked_list = []
-        for tple in preds:
-            if tple[1] == 1:
-                clicked_list.append(tple)
-            else:
-                testset.append(tple)
-
-        if len(testset) < topN or len(clicked_list) < 1:
+    for u, preds in iteritems(test_set_u):
+        if len(clicked_u[u]) < leave_out_num:
             record += 1
             continue
 
-        # select 1 non-zero item randomly
-        clicked_one = clicked_list[np.random.randint(len(clicked_list))]
-        testset.append(clicked_one)
-        testset.sort(key=lambda x: x[-1])
-        topN_list = testset[:topN:-1]
+        random.shuffle(clicked_u[u])
+        chosen_list = clicked_u[u][:leave_out_num]
+        preds.extend(chosen_list)
+        preds.sort(key=lambda x: x[-1])
+        topN_list = [tpl[0] for tpl in preds[:topN]]
 
-        hit += 1 if clicked_one in topN_list else 0
+        hit += sum([1 for click in chosen_list if click[0] in topN_list])
 
-    hr_ = hit / len(predictions_u.keys())
+    hr_ = hit / (len(test_set_u.keys()) - record)
 
     if verbose:
         print('HR:  {0:1.4f}'.format(hr_))
@@ -254,51 +260,53 @@ def arhr(predictions, verbose=True, **kwargs):
         ValueError: When ``predictions`` is empty.
     """
 
-    if not predictions:
-        raise ValueError('Prediction list is empty.')
+    # if not predictions:
+    #     raise ValueError('Prediction list is empty.')
 
-    if not kwargs['topN']:
-        raise ValueError('The number of top list is required, "topN": xx')
+    if not kwargs['topN'] and not kwargs['predictions_other'] and not kwargs['leave_out_num']:
+        raise ValueError('Lack of parameters')
     else:
         topN = kwargs['topN']
+        predictions_other = kwargs['predictions_other']
+        leave_out_num = kwargs['leave_out_num']
 
-    predictions_u = defaultdict(list)
+    # ii_set        [(u, i), ...]
+    # clicked_u     {u: [(i, est), ...]}
+    # test_set      [(u, i, est), ...]
+    # test_set_u    {u: [(i, est), ...]}
 
+    ui_set = set()
+    clicked_u = defaultdict(list)
     for u, i, r, est, _ in predictions:
-        predictions_u[u].append((i, r, est))
+        if int(r) == 1:
+            clicked_u[u].append((i, est))
+        ui_set.add((u, i))
+
+    test_set = [(u, i, est) for (u, i, r, est, _) in predictions_other if (u, i) not in ui_set]
+
+    test_set_u = defaultdict(list)
+    for u, i, est in test_set:
+        test_set_u[u].append((i, est))
 
     arhr_ = 0
     record = 0
-
-    for _, preds in iteritems(predictions_u):
-
-        testset = []
-        clicked_list = []
-        for tple in preds:
-            if tple[1] == 1:
-                clicked_list.append(tple)
-            else:
-                testset.append(tple)
-
-        if len(testset) < topN:
+    for u, preds in iteritems(test_set_u):
+        if len(clicked_u[u]) < leave_out_num:
             record += 1
             continue
 
-        if len(testset) < topN or len(clicked_list) < 1:
-            record += 1
-            continue
-
-        clicked_one = clicked_list[np.random.randint(len(clicked_list))]
-        testset.append(clicked_one)
-        testset.sort(key=lambda x: x[-1])
-        topN_list = testset[:topN:-1]
+        random.shuffle(clicked_u[u])
+        chosen_list = clicked_u[u][:leave_out_num]
+        preds.extend(chosen_list)
+        preds.sort(key=lambda x: x[-1])
+        topN_list = [tpl[0] for tpl in preds[:topN]]
 
         try:
-            arhr_ += 1 / (topN_list.index(clicked_one) + 1)
+            arhr_ += sum([1 / (topN_list.index(click) + 1) for click in chosen_list if click[0] in topN_list])
         except ValueError:
             arhr_ += 0
 
-    arhr_ = arhr_ / len(predictions_u.keys())
+    arhr_ = arhr_ / (len(test_set_u.keys()) - record)
 
     if verbose:
         print('ARHR:  {0:1.4f}'.format(arhr_))
@@ -310,13 +318,14 @@ def arhr(predictions, verbose=True, **kwargs):
 
 
 def _hr_arhr(predictions, verbose=True, **kwargs):
-    if not predictions:
-        raise ValueError('Prediction list is empty.')
+    # if not predictions:
+    #     raise ValueError('Prediction list is empty.')
 
-    if not kwargs['topN']:
-        raise ValueError('The number of top list is required, "topN": xx')
+    if not kwargs['topN']:  # and not kwargs['predictions_topN']:
+        raise ValueError('Lack of parameters')
     else:
         topN = kwargs['topN']
+        # predictions = kwargs['predictions_topN']
 
     predictions_u = defaultdict(list)
 
@@ -352,8 +361,8 @@ def _hr_arhr(predictions, verbose=True, **kwargs):
         except ValueError:
             arhr_ += 0
 
-    hr_ = hit / len(predictions_u.keys())
-    arhr_ = arhr_ / len(predictions_u.keys())
+    hr_ = hit / (len(predictions_u.keys()) - record)
+    arhr_ = arhr_ / (len(predictions_u.keys()) - record)
 
     if verbose:
         print('AR:   {0:1.4f}'.format(hr_))
