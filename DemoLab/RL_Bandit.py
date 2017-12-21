@@ -9,6 +9,7 @@ history = []
 statistic = defaultdict(list)
 reward = 0
 time = 0
+actions = ["1", "2", "3", "4", "5", "6"]
 
 print("Game starts!")
 while time < max_epoch:
@@ -29,7 +30,7 @@ while time < max_epoch:
         for k, v in statistic.items():
             print(k + " : " + str(np.mean(v)))
 
-    elif x in ["1", "2", "3", "4", "5", "6"]:
+    elif x in actions:
         time += 1
         r = p.reward(int(x))
         print("Your reward is " + str(r))
