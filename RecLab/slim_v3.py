@@ -19,6 +19,7 @@ class SLIM3(env.AlgoBase):
         self.l2_reg = l2_reg
         self.max_iter = max_iter
         self.tol = tol
+        self.zero_col = set()
         self.est = None
 
     def train(self, trainset):
@@ -47,13 +48,28 @@ class SLIM3(env.AlgoBase):
         W = sparse.lil_matrix((item_num, item_num))
 
         for j in range(item_num):
-            aj = A[:, j].copy()
-            A[:, j] = 0
+            # aj = A[:, j].copy()
+            # A[:, j] = 0
+            # model.fit(A, aj.toarray().ravel())
 
-            model.fit(A, aj.toarray().ravel())
+            nnz = A.getcol(j).nnz
+            if nnz == 0:
+                self.zero_col.add(j)
+                print("All zero column: " + str(j))
+                continue
+            rows, _ = A.getcol(j).nonzero()
+            B = sparse.lil_matrix((nnz, item_num))
+            bj = sparse.lil_matrix((nnz, 1))
+            for i in range(nnz):
+                B[i, :] = A.getrow(rows[i])
+                bj[i] = A.getcol(j).getrow(rows[i])
+
+            B[:, j] = 0
+
+            model.fit(B.tocsc(), bj.toarray().ravel())
 
             w = model.coef_
-            A[:, j] = aj
+            # A[:, j] = aj
 
             w[w < 0] = 0
             for el in w.nonzero()[0]:
@@ -82,8 +98,8 @@ if __name__ == '__main__':
     # reader = env.Reader(line_format='user item rating timestamp', sep=',', skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-100k
-    # file_path = 'input/ml-100k/u.data'
-    # reader = env.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
+    file_path = 'input/ml-100k/u.data'
+    reader = env.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1)
     # ------------------------------------------------------------------------------
     # ml-20m
     # file_path = 'input/ml-20m/ratings.csv'
@@ -93,9 +109,9 @@ if __name__ == '__main__':
     # data = env.Dataset.load_from_file(file_path, reader=reader)
     # data.split(n_folds=5)
 
-    file_path = 'input/ml-100k/u.data'
-    reader = myDataset.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=True,
-                              threshold=4.5)
+    # file_path = 'input/ml-100k/u.data'
+    # reader = myDataset.Reader(line_format='user item rating timestamp', sep='\t', skip_lines=1, implicit=True,
+    #                           threshold=4.5)
     data = myDataset.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
@@ -103,5 +119,5 @@ if __name__ == '__main__':
     algo = SLIM3(l1_reg=0.001, l2_reg=0.01, max_iter=200, tol=1e-3)
 
     # evaluate
-    # env.evaluate(algo, data, measures=['rmse', 'mae', 'fcp'])
-    myEvaluate.evaluate(algo, data, measures=['fcp', 'hr', 'arhr'], topN=10, leave_out_num=5, verbose=1)
+    env.evaluate(algo, data, measures=['rmse', 'mae', 'fcp'])
+    # myEvaluate.evaluate(algo, data, measures=['fcp', 'hr', 'arhr'], topN=10, leave_out_num=1, verbose=2)
