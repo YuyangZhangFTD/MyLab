@@ -112,6 +112,8 @@ ENV/
 *.occupation
 *.item
 *.info
+*.xlsx
+
 
 # IDE
 */.idea/
