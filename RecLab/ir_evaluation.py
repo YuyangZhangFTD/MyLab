@@ -15,12 +15,16 @@ class Evaluation: #for graded evaluations
     def set_max_grade(self, grademax=4):
         self.gmax = grademax  # grademax,where grade begins from 0
         self.grade_satisfaction_probability = {
-            0: 0,
-            1: 1 / 2 ** self.gmax,
-            2: 3 / 2 ** self.gmax,
-            3: 7 / 2 ** self.gmax,
-            4: 15 / 2 ** self.gmax
+            i : (2 ** i - 1) / 2 ** self.gmax
+            for i in range(self.gmax+1)
         }
+        # self.grade_satisfaction_probability = {
+        #     0: 0,
+        #     1: 1 / 2 ** self.gmax,
+        #     2: 3 / 2 ** self.gmax,
+        #     3: 7 / 2 ** self.gmax,
+        #     4: 15 / 2 ** self.gmax
+        # }
 
     def NDCG(self, evaluated_list):
         actual_list = evaluated_list[:]
@@ -74,6 +78,7 @@ class Evaluation: #for graded evaluations
 
             sum_ERR = sum_ERR + ERR_item
         averageERR = sum_ERR / total_no_of_lists
+        print(averageERR)
         return averageERR
 
     def findERR(self, ranklist):
@@ -108,9 +113,9 @@ if __name__ == '__main__':
     average_NDCG = e.find_average_NDCG(
         [[2, 3, 1, 4, 1, 2, 2, 3],
          [1, 2, 3, 3, 4, 0, 0]])  # list of evaluated ranked lists
-    # average_ERR = e.find_average_ERR(
-    #     [[2, 3, 1, 4, 1, 2, 2, 3],
-    #      [1, 2, 3, 3, 4, 0, 0]])
+    average_ERR = e.find_average_ERR(
+        [[2, 3, 1, 4, 1, 2, 2, 3],
+         [1, 2, 3, 3, 4, 0, 0]])
     # print("--------------------------------------------------------")
     # print("average_NDCG : ", average_NDCG)
     # print("average_ERR : ", average_ERR)
