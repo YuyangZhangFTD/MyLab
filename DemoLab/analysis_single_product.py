@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 import datetime as dt
 
 
+def _cal_week(t):
+    global week_flag
+    delta = t - week_flag
+    if delta.days > 6:
+        week_flag = t
+    return week_flag
+
+
 if __name__ == "__main__":
     # =============================== settings ===============================
     single_product = "4"
