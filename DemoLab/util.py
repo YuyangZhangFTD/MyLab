@@ -29,15 +29,15 @@ def handle_original_df_day_sn(original_df, time_df):
     :param time_df:
     :return:
     """
-    df = original_df.copy()
+    df = original_df[["order_date", "sale_cnt", "pay_amt"]]
     df["daytime"] = df["order_date"].apply(lambda x: str(x)) \
         .apply(lambda x: dt.datetime.strptime(x, "%Y%m%d"))
     df = df.groupby("daytime", as_index=False).sum()
     df = pd.merge(time_df, df, how="left", on="daytime")
     df = df.drop("order_date", axis=1)
     df["sale_cnt"] = df["sale_cnt"].fillna(0)
-    df["average_price"] = (df["pay_amt"] / df["sale_cnt"]) \
-        .fillna(method="ffill").fillna(method="bfill")
+    df["average_price"] = df["pay_amt"] / df["sale_cnt"]
+    df["average_price"] = df["average_price"].fillna(df["average_price"].max())
     df["log_sale_cnt"] = df["sale_cnt"].apply(lambda x: max(np.log10(x), 0))
     df["log_average_price"] = df["average_price"].apply(
         lambda x: max(np.log10(x), 0)
@@ -53,9 +53,8 @@ def handle_original_df_week_sn(day_df):
     """
     df = day_df.copy()
     df = df.groupby("week", as_index=False).sum()
-    df["average_price"] = (
-        df["pay_amt"] / df["sale_cnt"]
-    ).fillna(method="ffill").fillna(method="bfill")
+    df["average_price"] = df["pay_amt"] / df["sale_cnt"]
+    df["average_price"] = df["average_price"].fillna(df["average_price"].max())
     df["log_average_price"] = df["average_price"].apply(lambda x: max(np.log10(x), 0))
     df["log_sale_cnt"] = df["log_sale_cnt"].apply(lambda x: x/7)
     return df

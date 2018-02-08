@@ -13,10 +13,16 @@ if __name__ == "__main__":
         single_product:
             the product id, from 0 to 315
     Attention:
-        missing 107,312,313
+        wrong_product = [
+            33, 49, 52, 54, 55, 56, 57, 58,
+            59, 60, 61, 62, 63, 64, 65, 66,
+            67, 68, 69, 70, 71, 72, 73, 74,
+            89, 100, 107, 120, 149, 159, 203,
+            218, 223, 312, 313, 150
+        ]
     """
     need_jd_history = True
-    product_id = 200
+    product_id = 150
 
     # ============================== processing ==============================
     # time index
@@ -44,8 +50,8 @@ if __name__ == "__main__":
     df_sn["sale_cnt"] = df_sn["sale_cnt"].fillna(0)
 
     # average price for each day
-    df_sn["average_price"] = (df_sn["pay_amt"] / df_sn["sale_cnt"])\
-        .fillna(method="ffill").fillna(method="bfill")
+    df_sn["average_price"] = (df_sn["pay_amt"] / df_sn["sale_cnt"])
+    df_sn["average_price"] = df_sn["average_price"].fillna(df_sn["average_price"].max())
 
     # log sale cnt
     df_sn["log_sale_cnt"] = df_sn["sale_cnt"].apply(
@@ -59,8 +65,9 @@ if __name__ == "__main__":
     df_sn_week = df_sn.copy()
     df_sn_week = df_sn_week.groupby("week", as_index=False).sum()
     df_sn_week["average_price"] = (
-        df_sn_week["pay_amt"] / df_sn_week["sale_cnt"]
-    ).fillna(method="ffill").fillna(method="bfill")
+            df_sn_week["pay_amt"] / df_sn_week["sale_cnt"]
+    )
+    df_sn_week["average_price"] = df_sn_week["average_price"].fillna(df_sn_week["average_price"].max())
     df_sn_week["log_average_price"] = df_sn_week["average_price"].apply(
         lambda x: max(np.log10(x), 0)
     )
@@ -140,7 +147,7 @@ if __name__ == "__main__":
     ax5.set_title("product_id " + single_product + " per week")
     ax5.plot(df_sn_week["week"], df_sn_week["sale_cnt"], "r.-")
     ax5.plot(df_sn_week["week"], [
-             0 for __ in range(len(df_sn_week.index))], "y")
+        0 for __ in range(len(df_sn_week.index))], "y")
     ax5.set_xlabel('time')
     ax5.set_ylabel("sale_cnt")
     ax5.legend(loc='upper left')
@@ -159,7 +166,7 @@ if __name__ == "__main__":
         " with logarithmic processing per week")
     ax7.plot(df_sn_week["week"], df_sn_week["log_sale_cnt"], "r.-")
     ax7.plot(df_sn_week["week"], [
-             0 for __ in range(len(df_sn_week.index))], "y")
+        0 for __ in range(len(df_sn_week.index))], "y")
     ax7.set_xlabel('time')
     ax7.set_ylabel("log_sale_cnt")
     ax7.legend(loc='upper left')

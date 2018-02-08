@@ -14,7 +14,7 @@ if __name__ == "__main__":
             a list of products, which belongs to same category
     """
     # use category id
-    category_id = 25
+    category_id = 55
 
     # get product ids
     f = pd.read_csv("input/categories_l3.csv")
