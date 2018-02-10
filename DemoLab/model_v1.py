@@ -1,3 +1,7 @@
+"""
+    sample linear regression
+    d_{t-1}, p_{t-1}, p_t are considered
+"""
 import pandas as pd
 import datetime as dt
 import numpy as np
@@ -5,7 +9,7 @@ from statsmodels import api as sm
 from matplotlib import pyplot as plt
 import util
 
-pid = 82
+pid = 191
 
 start_date = dt.datetime.strptime("2017-06-04", "%Y-%m-%d")
 end_date = dt.datetime.strptime("2017-12-31", "%Y-%m-%d")
@@ -19,17 +23,17 @@ df_week = util.handle_original_df_week_sn(df_day)
 data = df_day[["log_sale_cnt", "log_average_price"]].values
 # data = df_week[["log_sale_cnt", "log_average_price"]].values
 
-num_var = 3
-x = np.zeros((len(data) - 2, num_var))
-y = np.ones((len(data) - 2, 1))
+num_var = 2
+x = np.zeros((len(data) - 3, num_var))
+y = np.ones((len(data) - 3, 1))
 
-x[:, 0] = data[1:-1, 0]  # d_{t-1}
-x[:, 1] = data[2:, 1]  # p_{t}
-x[:, 2] = data[1:-1, 1]  # p_{t-1}
+x[:, 0] = data[2:-1, 0]     # d_{t-1}
+x[:, 1] = data[3:, 1]  # p_{t}
+# x[:, 2] = data[2:-1, 1]  # p_{t-1}
 # x[:, 3] = data[:-2, 0]    # d_{t-2}
 # x[:, 4] = data[:-2, 1]    # p_{t-2}
 
-y = data[2:, 0]  # d_{t}
+y = data[3:, 0]  # d_{t}
 
 data_num = len(y)
 train_num = int(data_num * 0.8)
@@ -56,8 +60,11 @@ yy = m._predict_util(func, test_x, period, max_y, min_y)
 
 y1 = np.power(10, y_pre[:7]).reshape(7, 1)
 y2 = np.power(10, test_y[:7]).reshape(7, 1)
+yy1 = np.power(10, yy[:7]).reshape(7, 1)
 
 r = np.mean(np.abs(y1 - y2) / (y1 + y2 + np.ones((7, 1))))
+print(r)
+r = np.mean(np.abs(yy1 - y2) / (yy1 + y2 + np.ones((7, 1))))
 print(r)
 
 # ====================== PLOT ============================

@@ -26,7 +26,7 @@ def _predict_util(param_model, param_x, param_periods, upper_bound=999999999, lo
 if __name__ == "__main__":
 
     period = 1
-    gap = 35
+    gap = 14
 
     wrong_product = [
         33, 49, 52, 54, 55, 56, 57, 58,
@@ -52,13 +52,13 @@ if __name__ == "__main__":
 
         data = df_day[["log_sale_cnt", "log_average_price"]].values
 
-        num_var = 3
+        num_var = 2
         x = np.zeros((len(data) - 2, num_var))
         y = np.ones((len(data) - 2, 1))
 
-        x[:, 0] = data[1:-1, 0]  # d_{t-1}
-        x[:, 1] = data[2:, 1]  # p_{t}
-        x[:, 2] = data[1:-1, 1]  # p_{t-1} / p_{t}
+        # x[:, 0] = data[1:-1, 0]  # d_{t-1}
+        x[:, 0] = data[2:, 1]  # p_{t}
+        x[:, 1] = data[1:-1, 1]  # p_{t-1}
 
         y = data[2:, 0]  # d_{t}
 
