@@ -15,6 +15,6 @@ setup(
 
     Extension("cd_fast", ["cd_fast.pyx"]),
 
-    ]),
+    ]), requires=['matplotlib']
 
 )
