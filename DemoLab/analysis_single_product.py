@@ -22,7 +22,7 @@ if __name__ == "__main__":
         ]
     """
     need_jd_history = True
-    product_id = 82
+    product_id = 251
 
     # ============================== processing ==============================
     # time index
