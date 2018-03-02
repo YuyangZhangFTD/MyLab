@@ -123,4 +123,6 @@ ENV/
 */music/input/
 music/input/
 
+# mac
+*.DS_Store
 
