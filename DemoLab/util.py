@@ -58,3 +58,7 @@ def handle_original_df_week_sn(day_df):
     df["log_average_price"] = df["average_price"].apply(lambda x: max(np.log10(x), 0))
     df["log_sale_cnt"] = df["log_sale_cnt"].apply(lambda x: x/7)
     return df
+
+
+def generate_time_series(df, column_name, index_name):
+    return pd.Series(df[column_name].values, index=df[index_name].values)
