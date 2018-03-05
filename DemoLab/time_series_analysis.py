@@ -6,7 +6,7 @@ import statsmodels.tsa.stattools as tsa
 from matplotlib import pyplot as plt
 import util
 
-pid = 5
+pid = 16
 split_date = "20171201"
 
 start_date = dt.datetime.strptime("2017-06-04", "%Y-%m-%d")
@@ -30,9 +30,9 @@ test_ts_sales = ts_log_sales[split_date:]
 # pacf
 fig = plt.figure()
 ax1 = fig.add_subplot(321)
-fig = sm.graphics.tsa.plot_acf(ts_sales, lags=40, ax=ax1)
+fig = sm.graphics.tsa.plot_acf(ts_sales, lags=80, ax=ax1)
 ax2 = fig.add_subplot(322)
-fig = sm.graphics.tsa.plot_pacf(ts_sales, lags=40, ax=ax2)
+fig = sm.graphics.tsa.plot_pacf(ts_sales, lags=80, ax=ax2)
 
 ax3 = fig.add_subplot(323)
 fig = sm.graphics.tsa.plot_acf(ts_log_sales, lags=40, ax=ax3)

@@ -1,0 +1,3 @@
+"""
+    ARMA+linear model
+"""
