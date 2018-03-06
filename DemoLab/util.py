@@ -123,10 +123,10 @@ def eliminate_outlier_ts(ts, alpha, method="mean"):
     return ts, aic_history
 
 
-def eliminate_outlier_df(df, alpha, column_name, index_name):
+def eliminate_outlier_df(df, alpha, column_name, index_name, new_column_name):
     ts = generate_time_series(df, column_name, index_name)
     ts, aic_history = eliminate_outlier_ts(ts, alpha)
     return pd.merge(
-        df, ts.reset_index(name="sale_cnt_no_outlier"),
+        df, ts.reset_index(name=new_column_name),
         how="inner", left_on=index_name, right_on="index"
     ), aic_history

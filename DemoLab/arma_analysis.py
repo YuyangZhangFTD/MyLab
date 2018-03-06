@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import util
-from statsmodels import api as sm
+import statsmodels as sm
 from matplotlib import pyplot as plt
 import datetime as dt
 
@@ -18,6 +18,14 @@ df_week = util.handle_original_df_week_sn(df_day)
 df = util.add_special_date(df_day, ahead_effect=5, behind_effect=2)
 
 df, aic_history = util.eliminate_outlier_df(df, 0.05, "sale_cnt", "daytime")
-print(df)
-print(aic_history)
+
+ts_sales = util.ggenerate_time_series(df, "sale_cnt_no_outlier", "daytime")
+
+# acf and pacf
+fig = plt.figure(1)
+ax1 = fig.add_subplot(211)
+fig = sm.api.graphics.tsa.plot_acf(ts_sales, ax=ax1)
+ax2 = fig.add_subplot(212)
+fig = sm.api.graphics.tsa.plot_pacf(ts_sales, ax=ax2)
+
 

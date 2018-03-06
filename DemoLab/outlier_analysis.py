@@ -33,7 +33,7 @@ ts_sales_zero_mean = ts_sales - ts_sales.mean()
 
 fig = plt.figure()
 
-ax1 = fig.add_subplot(311)
+ax1 = fig.add_subplot(211)
 ax1.plot(ts_sales, "r.-", label="sale_cnt")
 ax1.plot(ts_sales_zero_mean, "g.-", label="sale_cnt_zero_mean")
 
@@ -95,7 +95,7 @@ ax1.legend()
 # ax2.plot(ts_log_sales_zero_mean, "y.-", label="log_sale_cnt_zero_mean")
 # ax2.legend()
 
-ax3 = fig.add_subplot(325)
+ax3 = fig.add_subplot(212)
 ax3.plot([i for i in range(n_outlier-1)], [x[1] for x in aic_history])\
 
 # ax4 = fig.add_subplot(326)

@@ -5,7 +5,7 @@ from statsmodels import api as sm
 from matplotlib import pyplot as plt
 import datetime as dt
 
-pid = 5
+pid = 4
 test_week_num = 6
 
 start_date = dt.datetime.strptime("2017-06-04", "%Y-%m-%d")
@@ -19,10 +19,10 @@ df_week = util.handle_original_df_week_sn(df_day)
 df = util.add_special_date(df_day, ahead_effect=5, behind_effect=2)
 
 data = df[[
-    # "log_sale_cnt",
-    # "log_average_price",
-    "sale_cnt",
-    "average_price",
+    "log_sale_cnt",
+    "log_average_price",
+    # "sale_cnt",
+    # "average_price",
     "special_date",
     "ahead_special_date",
     "behind_special_date"

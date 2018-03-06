@@ -1,12 +1,10 @@
 import pandas as pd
 import datetime as dt
-import numpy as np
 import statsmodels.api as sm
-import statsmodels.tsa.stattools as tsa
 from matplotlib import pyplot as plt
 import util
 
-pid = 16
+pid = 4
 split_date = "20171201"
 
 start_date = dt.datetime.strptime("2017-06-04", "%Y-%m-%d")
