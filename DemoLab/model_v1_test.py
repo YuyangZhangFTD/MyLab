@@ -25,8 +25,8 @@ def _predict_util(param_model, param_x, param_periods, upper_bound=999999999, lo
 
 if __name__ == "__main__":
 
-    period = 1
-    gap = 14
+    period = 7
+    gap = 63
 
     wrong_product = [
         33, 49, 52, 54, 55, 56, 57, 58,
@@ -43,7 +43,10 @@ if __name__ == "__main__":
     record_hat = []
     record_exp = []
 
-    for i in range(316):
+    pid_df = pd.read_csv("input/id_list.csv")
+    id_list = pid_df["id"].values.tolist()  # 135 ids
+
+    for i in id_list:
         if i in wrong_product:
             continue
         f = pd.read_csv("input/" + str(i) + ".csv")
@@ -52,22 +55,22 @@ if __name__ == "__main__":
 
         data = df_day[["log_sale_cnt", "log_average_price"]].values
 
-        num_var = 2
+        num_var = 3
         x = np.zeros((len(data) - 2, num_var))
         y = np.ones((len(data) - 2, 1))
 
-        # x[:, 0] = data[1:-1, 0]  # d_{t-1}
+        x[:, 0] = data[1:-1, 0]  # d_{t-1}
         x[:, 0] = data[2:, 1]  # p_{t}
         x[:, 1] = data[1:-1, 1]  # p_{t-1}
 
-        y = data[2:, 0]  # d_{t}
+        y[:, 0] = data[2:, 0]  # d_{t}
 
         data_num = len(y)
         train_num = data_num - period - gap
-        train_x = x[:train_num, :]
-        test_x = x[train_num:, :]
-        train_y = y[:train_num]
-        test_y = y[train_num:]
+        train_x = x[:train_num-2, :]
+        test_x = x[train_num-2:, :]
+        train_y = y[:train_num-2]
+        test_y = y[train_num-2:]
 
         max_y = np.max(train_y)
         # min_x = np.min(train_x)

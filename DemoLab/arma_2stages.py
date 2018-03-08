@@ -10,8 +10,8 @@ from matplotlib import pyplot as plt
 import datetime as dt
 
 pid = 4
-split_train_end = "20171130"
-split_test_start = "20171201"
+split_train_end = "20171203"
+split_test_start = "20171204"
 arma_order = (3, 1)
 ahead_period = 2
 

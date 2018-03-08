@@ -130,7 +130,6 @@ if __name__ == '__main__':
     data = dataset.Dataset.load_from_file(file_path, reader=reader)
     data.split(n_folds=5)
 
-
     # define algorithm
     algo = BPR3(
         learning_rate=0.01,

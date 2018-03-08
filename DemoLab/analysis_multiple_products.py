@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # 6, 9, 11, 12, 13, 18, 19, 20, 22, 25, 31, 32
     # 34, 37, 39, 40, 41, 51, 52, 53, 57, 58, 59
     # 64, 65
-    category_id = 67
+    category_id = 53
 
     # get product ids
     f = pd.read_csv("input/categories_l3.csv")
