@@ -1,4 +1,4 @@
-"""p_t, p_{t-1}, d_{t-1} linear model
+""" d_t = f(p_t, d_{t-1}, p_{t-1}, p_t^2, dummy variables)
 """
 import numpy as np
 import pandas as pd
@@ -7,9 +7,10 @@ from statsmodels import api as sm
 from matplotlib import pyplot as plt
 import datetime as dt
 
-pid = 3
-test_week_num = 3
-is_log = False
+
+pid = 5
+test_week_num = 10
+is_log = True
 
 start_date = dt.datetime.strptime("2017-06-04", "%Y-%m-%d")
 end_date = dt.datetime.strptime("2017-12-31", "%Y-%m-%d")
@@ -38,7 +39,6 @@ else:
         "behind_special_date"
     ]].values
 
-
 sample_num = len(data)
 train_num = sample_num - test_week_num * 7
 
@@ -47,16 +47,18 @@ ahead_period = 1
 train_data = data[:train_num]
 test_data = data[train_num - ahead_period:]
 
-var_num = 3
+var_num = 8
 
 x = np.zeros((train_num - ahead_period, var_num))
 
 x[:, 0] = train_data[ahead_period:, 1]  # p_{t}
-x[:, 1] = train_data[ahead_period - 1:train_num - 1, 0]  # d_{t-1}
-x[:, 2] = train_data[ahead_period - 1:train_num - 1, 1]  # p_{t-1}
-# x[:, 3] = train_data[ahead_period:, 2]  # whether is a special day
-# x[:, 4] = train_data[ahead_period:, 3]  # whether is ahead a special day
-# x[:, 5] = train_data[ahead_period:, 4]  # whether is behind a special day
+x[:, 1] = train_data[ahead_period - 1: -1, 0]  # d_{t-1}
+x[:, 2] = train_data[ahead_period - 1: -1, 1]  # p_{t-1}
+x[:, 3] = np.power(train_data[ahead_period:, 1], 2)
+x[:, 4] = np.power(train_data[ahead_period:, 1], 3)
+x[:, 5] = train_data[ahead_period:, 2]  # whether is a special day
+x[:, 6] = train_data[ahead_period:, 3]  # whether is ahead a special day
+x[:, 7] = train_data[ahead_period:, 4]  # whether is behind a special day
 
 y = np.zeros((train_num - ahead_period, 1))
 y = train_data[ahead_period:, 0]
@@ -70,11 +72,13 @@ hat_y = np.dot(x, w)
 
 test_x = np.zeros((sample_num - train_num, var_num))
 test_x[:, 0] = test_data[ahead_period:, 1]  # p_{t}
-test_x[:, 1] = test_data[ahead_period - 1:sample_num - train_num, 0]  # d_{t-1}
-test_x[:, 2] = test_data[ahead_period - 1:sample_num - train_num, 1]  # p_{t-1}
-# test_x[:, 3] = test_data[ahead_period:, 2]  # whether is a special day
-# test_x[:, 4] = test_data[ahead_period:, 3]  # whether is ahead a special day
-# test_x[:, 5] = test_data[ahead_period:, 4]  # whether is behind a special day
+test_x[:, 1] = test_data[ahead_period - 1: -1, 0]  # d_{t-1}
+test_x[:, 2] = test_data[ahead_period - 1: -1, 1]  # p_{t-1}
+test_x[:, 3] = np.power(test_data[ahead_period:, 1], 2)
+test_x[:, 4] = np.power(test_data[ahead_period:, 1], 3)
+test_x[:, 5] = test_data[ahead_period:, 2]  # whether is a special day
+test_x[:, 6] = test_data[ahead_period:, 3]  # whether is ahead a special day
+test_x[:, 7] = test_data[ahead_period:, 4]  # whether is behind a special day
 
 test_y = np.zeros((sample_num - train_num, 1))
 test_y[:, 0] = test_data[ahead_period:, 0]
@@ -84,11 +88,11 @@ calculate_y = predict_y[:7]
 
 if is_log:
     print(np.mean(
-        np.abs(np.power(10, test_y[:7]) - np.power(10, calculate_y, 1)) /
-        (np.power(10, test_y[:7]) + np.power(10, calculate_y, 1) + np.ones((7, 1)))
+        np.abs(np.power(10, test_y[:7]) - np.power(10, calculate_y)) /
+        (np.power(10, test_y[:7]) + np.power(10, calculate_y) + np.ones((7, 1)))
     ))
     print(np.power(10, test_y[:7]))
-    print(np.power(10, np.power(10, calculate_y, 1)))
+    print(np.power(10, calculate_y))
 else:
     print(np.mean(
         np.abs(test_y[:7] - calculate_y) /
@@ -96,9 +100,6 @@ else:
     ))
     print(test_y[:7])
     print(calculate_y)
-    print(np.abs(test_y[:7] - calculate_y))
-    print(test_y[:7] + calculate_y + np.ones((7, 1)))
-    print(np.abs(test_y[:7] - calculate_y) / (test_y[:7] + calculate_y + np.ones((7, 1))))
 
 # plot
 fig = plt.figure()

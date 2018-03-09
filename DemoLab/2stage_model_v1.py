@@ -1,4 +1,4 @@
-"""p_t, p_{t-1}, d_{t-1} linear model
+"""2-stage model
 """
 import numpy as np
 import pandas as pd
@@ -47,6 +47,7 @@ ahead_period = 1
 train_data = data[:train_num]
 test_data = data[train_num - ahead_period:]
 
+# TODO
 var_num = 3
 
 x = np.zeros((train_num - ahead_period, var_num))
