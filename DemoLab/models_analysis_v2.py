@@ -1,6 +1,4 @@
-import util
 import pandas as pd
-import datetime as dt
 import numpy as np
 from collections import defaultdict
 
@@ -10,8 +8,10 @@ def _loss(array1, array2):
 
 
 # settings
-file_name_3weeks = "log_linear_model_v5_exp_3weeks.csv"
-file_name_10weeks = "log_linear_model_v5_exp_10weeks.csv"
+# file_name_3weeks = "linear_model_v5_exp_3weeks.csv"
+# file_name_10weeks = "linear_model_v5_exp_10weeks.csv"
+file_name_3weeks = "log_2stage_model_v1_exp_3weeks.csv"
+file_name_10weeks = "log_2stage_model_v1_exp_10weeks.csv"
 
 # read test id list
 pid_df = pd.read_csv("input/id_list.csv")
@@ -33,6 +33,10 @@ for pid in pid_list:
     print("=" * 20 + str(pid) + "=" * 20)
     for k, v in loss.items():
         print(k + " ==> " + str(v[-1]))
+
+    print(df_3weeks.loc[pid].values)
+    print(true_value_3weeks.loc[pid].values)
+    print(_loss(df_3weeks.loc[pid].values, true_value_3weeks.loc[pid].values))
 
     print(df_10weeks.loc[pid].values)
     print(true_value_10weeks.loc[pid].values)

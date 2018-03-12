@@ -9,7 +9,7 @@ import datetime as dt
 
 pid = 3
 test_week_num = 3
-is_log = False
+is_log = True
 
 start_date = dt.datetime.strptime("2017-06-04", "%Y-%m-%d")
 end_date = dt.datetime.strptime("2017-12-31", "%Y-%m-%d")
@@ -19,7 +19,7 @@ f = pd.read_csv("input/" + str(pid) + ".csv")
 df_day = util.handle_original_df_day_sn(f, df_date)
 df_week = util.handle_original_df_week_sn(df_day)
 
-df = util.add_special_date(df_day, ahead_effect=5, behind_effect=2)
+df = util.add_special_date(df_day, ahead_effect=5, behind_effect=1)
 
 if is_log:
     data = df[[
@@ -38,74 +38,94 @@ else:
         "behind_special_date"
     ]].values
 
-
 sample_num = len(data)
 train_num = sample_num - test_week_num * 7
 
 ahead_period = 1
 
-train_data = data[:train_num]
-test_data = data[train_num - ahead_period:]
+train_data = data[:train_num, :]
+test_data = data[train_num - ahead_period:, :]
 
-# TODO
-var_num = 3
+# train
+var_num_1 = 3
 
-x = np.zeros((train_num - ahead_period, var_num))
+x_1 = np.zeros((train_num - ahead_period, var_num_1))
 
-x[:, 0] = train_data[ahead_period:, 1]  # p_{t}
-x[:, 1] = train_data[ahead_period - 1:train_num - 1, 0]  # d_{t-1}
-x[:, 2] = train_data[ahead_period - 1:train_num - 1, 1]  # p_{t-1}
-# x[:, 3] = train_data[ahead_period:, 2]  # whether is a special day
-# x[:, 4] = train_data[ahead_period:, 3]  # whether is ahead a special day
-# x[:, 5] = train_data[ahead_period:, 4]  # whether is behind a special day
+x_1[:, 0] = train_data[ahead_period:, 1]  # p_{t}
+x_1[:, 1] = train_data[ahead_period - 1:train_num - 1, 0]  # d_{t-1}
+x_1[:, 2] = train_data[ahead_period - 1:train_num - 1, 1]  # p_{t-1}
 
-y = np.zeros((train_num - ahead_period, 1))
-y = train_data[ahead_period:, 0]
+y_1 = np.zeros((train_num - ahead_period, 1))
+y_1[:, 0] = train_data[ahead_period:, 0]
 
-result = sm.OLS(y, x).fit()
+result = sm.OLS(y_1, x_1).fit()
 print(result.summary())
 
-# predict
-w = result.params.reshape(var_num, 1)
-hat_y = np.dot(x, w)
+w_1 = result.params.reshape(var_num_1, 1)
+hat_y_1 = np.dot(x_1, w_1)
 
-test_x = np.zeros((sample_num - train_num, var_num))
-test_x[:, 0] = test_data[ahead_period:, 1]  # p_{t}
-test_x[:, 1] = test_data[ahead_period - 1:sample_num - train_num, 0]  # d_{t-1}
-test_x[:, 2] = test_data[ahead_period - 1:sample_num - train_num, 1]  # p_{t-1}
-# test_x[:, 3] = test_data[ahead_period:, 2]  # whether is a special day
-# test_x[:, 4] = test_data[ahead_period:, 3]  # whether is ahead a special day
-# test_x[:, 5] = test_data[ahead_period:, 4]  # whether is behind a special day
+var_num_2 = 6
 
+x_2 = np.zeros((train_num - ahead_period, var_num_2))
+
+x_2[:, 0] = np.power(train_data[ahead_period:, 1], 2)
+x_2[:, 1] = np.power(train_data[ahead_period:, 1], 3)
+x_2[:, 2] = np.power(train_data[ahead_period - 1:train_num - 1, 1], 2)
+x_2[:, 3] = train_data[ahead_period:, 2]  # whether is a special day
+x_2[:, 4] = train_data[ahead_period:, 3]  # whether is ahead a special day
+x_2[:, 5] = train_data[ahead_period:, 4]  # whether is behind a special day
+
+y_2 = np.zeros((train_num - ahead_period, 1))  # residual
+y_2[:] = y_1 - hat_y_1
+
+result = sm.OLS(y_2, x_2).fit()
+print(result.summary())
+
+w_2 = result.params.reshape(var_num_2, 1)
+hat_y_2 = np.dot(x_2, w_2)
+
+# test
 test_y = np.zeros((sample_num - train_num, 1))
 test_y[:, 0] = test_data[ahead_period:, 0]
-predict_y = np.dot(test_x, w)
 
-calculate_y = predict_y[:7]
+test_x_1 = np.zeros((sample_num - train_num, var_num_1))
+test_x_1[:, 0] = test_data[ahead_period:, 1]  # p_{t}
+test_x_1[:, 1] = test_data[ahead_period - 1:sample_num - train_num, 0]  # d_{t-1}
+test_x_1[:, 2] = test_data[ahead_period - 1:sample_num - train_num, 1]  # p_{t-1}
+
+predict_y_1 = np.dot(test_x_1, w_1)
+
+test_x_2 = np.zeros((sample_num - train_num, var_num_2))
+test_x_2[:, 0] = np.power(test_data[ahead_period:, 1], 2)
+test_x_2[:, 1] = np.power(test_data[ahead_period:, 1], 3)
+test_x_2[:, 2] = np.power(test_data[ahead_period - 1:sample_num - train_num, 1], 2)
+test_x_2[:, 3] = test_data[ahead_period:, 2]  # whether is a special day
+test_x_2[:, 4] = test_data[ahead_period:, 3]  # whether is ahead a special day
+test_x_2[:, 5] = test_data[ahead_period:, 4]  # whether is behind a special day
+
+predict_y_2 = np.dot(test_x_2, w_2)
+
+predict_y = predict_y_1 + predict_y_2
 
 if is_log:
-    print(np.mean(
-        np.abs(np.power(10, test_y[:7]) - np.power(10, calculate_y, 1)) /
-        (np.power(10, test_y[:7]) + np.power(10, calculate_y, 1) + np.ones((7, 1)))
-    ))
-    print(np.power(10, test_y[:7]))
-    print(np.power(10, np.power(10, calculate_y, 1)))
+    evaluation_hat_y = np.power(10, np.array([x for x in predict_y[:7]])).reshape(7, 1)
+    evaluation_y = np.power(10, test_y[:7])
+
 else:
-    print(np.mean(
-        np.abs(test_y[:7] - calculate_y) /
-        (test_y[:7] + calculate_y + np.ones((7, 1)))
-    ))
-    print(test_y[:7])
-    print(calculate_y)
-    print(np.abs(test_y[:7] - calculate_y))
-    print(test_y[:7] + calculate_y + np.ones((7, 1)))
-    print(np.abs(test_y[:7] - calculate_y) / (test_y[:7] + calculate_y + np.ones((7, 1))))
+    evaluation_hat_y = np.array([x if x > 0 else 0 for x in predict_y[:7]]).reshape(7, 1)
+    evaluation_y = test_y[:7]
+
+evaluation = (np.abs(evaluation_y - evaluation_hat_y) / (evaluation_y + evaluation_hat_y + np.ones((7, 1))))
+print(np.mean(evaluation))
+print(evaluation_y)
+print(evaluation_hat_y)
+print(evaluation)
 
 # plot
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.plot([i for i in range(ahead_period, train_num)], y, "r.-", label="train y")
-ax.plot([i for i in range(ahead_period, train_num)], hat_y, "b.-", label="hat y")
+ax.plot([i for i in range(ahead_period, train_num)], y_1, "r.-", label="train y")
+ax.plot([i for i in range(ahead_period, train_num)], hat_y_1, "b.-", label="hat y")
 ax.plot([i for i in range(train_num, sample_num)], test_y, "g.-", label="test y")
 ax.plot([i for i in range(train_num, sample_num)], predict_y, "y.-", label="predict y")
 ax.legend()

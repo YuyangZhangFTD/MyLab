@@ -8,9 +8,9 @@ from matplotlib import pyplot as plt
 import datetime as dt
 
 
-pid = 5
-test_week_num = 10
-is_log = True
+pid = 191
+test_week_num = 3
+is_log = False
 
 start_date = dt.datetime.strptime("2017-06-04", "%Y-%m-%d")
 end_date = dt.datetime.strptime("2017-12-31", "%Y-%m-%d")

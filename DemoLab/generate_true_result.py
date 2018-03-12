@@ -1,8 +1,7 @@
 import util
 import pandas as pd
 import datetime as dt
-import numpy as np
-from collections import defaultdict
+
 
 # read test id list
 pid_df = pd.read_csv("input/id_list.csv")
