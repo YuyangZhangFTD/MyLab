@@ -126,3 +126,6 @@ music/input/
 # mac
 *.DS_Store
 
+# gurobi
+*.log
+*.mps

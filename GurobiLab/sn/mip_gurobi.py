@@ -12,15 +12,17 @@ num_i, num_j = c.shape
 Inf = 1e8
 loading_rate = 0.5
 
+num_j = 200
+
 # model
 m = Model()
 
 # add variables
-x = m.addVars([i for i in range(num_i)],[j for j in range(num_j)], vtype=GRB.INTEGER)
-q = m.addVars([j for j in range(num_j)], vtype=GRB.INTEGER)
+x = m.addVars([i for i in range(num_i)],[j for j in range(num_j)], vtype=GRB.CONTINUOUS, name="x")
+q = m.addVars([j for j in range(num_j)], vtype=GRB.BINARY, name="q")
 
 # set objective
-m.setObjective(quicksum(x[i,j]*c[i,j] for i in range(num_i) for j in range(num_j)), GRB.MAXIMIZE)
+m.setObjective(quicksum(x[i,j] for i in range(num_i) for j in range(num_j)), GRB.MAXIMIZE)
 
 # add constraints
 # x < cij * inf
@@ -53,4 +55,7 @@ m.addConstrs((
     for j in range(num_j)
 ))
 
-print(m.optimize())
+m.write("model.mps")
+
+m.optimize()
+print(m.getAttr("x")[-num_j:])
