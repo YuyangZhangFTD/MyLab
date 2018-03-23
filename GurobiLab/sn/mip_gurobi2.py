@@ -2,11 +2,11 @@ import numpy as np
 from gurobipy import *
 
 
-c = np.loadtxt("c.csv", delimiter="\t")
+c = np.loadtxt("c.csv", delimiter="\t", dtype="int")
 od_wgt = np.loadtxt("od_wgt.csv", delimiter=",")
 max_wgt = np.loadtxt("max_wgt.csv", delimiter=",")
-od1 = np.loadtxt("od1.csv", delimiter=",")
-od2 = np.loadtxt("od2.csv", delimiter=",")
+od1 = np.loadtxt("od1.csv", delimiter=",", dtype="int")
+od2 = np.loadtxt("od2.csv", delimiter=",", dtype="int")
 
 num_i, num_j = c.shape
 Inf = 1e8
@@ -28,7 +28,19 @@ m.setObjective(quicksum(x[i,j] for i in range(num_i) for j in range(num_j)), GRB
 # add constraints
 # \sum_k q[k, j] = 1
 m.addConstrs((
-    quicksum(q[k, j] for k in range(q_value)) == 1
+    quicksum(q[k, j] for k in range(q_value)) <= 1
+    for j in range(num_j)
+))
+# greedy q
+m.addConstrs((
+    quicksum(
+        q[k, j] * k
+        for k in range(q_value)
+    ) <= (quicksum(
+        od_wgt[i] for i in od1[j]    
+    ) + quicksum(
+        od_wgt[i] for i in od2[j]
+    )) / max_wgt[j] + 1
     for j in range(num_j)
 ))
 # x < cij * inf

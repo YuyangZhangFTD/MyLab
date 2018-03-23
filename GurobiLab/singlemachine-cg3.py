@@ -63,13 +63,13 @@ for jj in range(N-1,-1,-1):
 #x[1][0][0+p[4]+p[3]+p[2]+p[1]] = 1
 
 # 输出初始解,查看是否合理
-#print('Initial Solutions: ')
-#for ii in range(6):
+# print('Initial Solutions: ')
+# for ii in range(6):
 #   for jj in range(5):
 #       for kk in range(18):
 #           if x[ii][jj][kk]>0:
 #               print('x[%d][%d][%d] = %d'%(ii,jj,kk,x[ii][jj][kk]))
-#=================
+# =================
 
 MAX_CGTIMES =1000  # 最大列生成的迭代次数
 CGtime = 0 # 列生成loop计算时间
@@ -77,15 +77,15 @@ def reportRMP(model):  # 报告Restrict Master Problem限制主问题
     if model.status == GRB.OPTIMAL:  # 如果主问题求得了最优，
         print("RMP_Total Cost: ", model.objVal)  # 输出的目标值是共用几个整料        
         # 获取RMP中的变量
-#        var = model.getVars() 
-#        for i in range(model.numVars): # 遍历所有变量，输出每个变量的值
-#            print(var[i].varName, " = ", var[i].x)
-#        print("\n")  
-        # 获取主问题中的约束
-#        con = model.getConstrs() 
-#        for i in range(model.numConstrs): #输出每个约束对应的pi：对偶值/影子价格;所有pi值构成行向量PI
-#            print(con[i].constrName, " = ", con[i].pi)
-#        print("\n")
+        # var = model.getVars() 
+        # for i in range(model.numVars): # 遍历所有变量，输出每个变量的值
+        #     print(var[i].varName, " = ", var[i].x)
+        # print("\n")  
+        # # 获取主问题中的约束
+        # con = model.getConstrs() 
+        # for i in range(model.numConstrs): #输出每个约束对应的pi：对偶值/影子价格;所有pi值构成行向量PI
+        #     print(con[i].constrName, " = ", con[i].pi)
+        # print("\n")
         # con[i].pi: Dual values for the computed solution
         # (also known as shadow prices). 
         # This array contains one entry for each row of A.
@@ -93,20 +93,20 @@ def reportSUB(model): # 报告Princing Problem,即Sub-Problem 子问题
     if model.status == GRB.OPTIMAL: # 如果子问题求得了最优，
         print("SUB_Ck: ", model.objVal, "\n") # 输出目标值，这里应该是C_k:resuced cost
         # 判断是否最优
-#        if model.objVal <= 1e-6:  # 如果子问题的目标值 <= 0,考虑deltaZ为加号情况
-#            var = model.getVars()  # 获取子问题的变量(此时不是最优，可以继续小)
-            # 遍历每个子问题变量
-#            for i in range(model.numVars): 
-#                print(var[i].varName, " = ", var[i].x) 
-#            print("\n") # 输出每个变量名与变量值
+        # if model.objVal <= 1e-6:  # 如果子问题的目标值 <= 0,考虑deltaZ为加号情况
+        #     var = model.getVars()  # 获取子问题的变量(此时不是最优，可以继续小)
+        #     # 遍历每个子问题变量
+        #     for i in range(model.numVars): 
+        #         print(var[i].varName, " = ", var[i].x) 
+        #     print("\n") # 输出每个变量名与变量值
 def reportMIP(model): # 报告整个MIP问题
     if model.status == GRB.OPTIMAL: # 如果求得了最优，输出目标：总成本
         print(" RMP best solution: ", model.objVal)
         # 获取每个变量，输出它们的值
-#        var = model.getVars() 
-#        for i in range(model.numVars):
-#            if var[i].x != 0:
-#                print(var[i].varName, " = ", var[i].x)
+        # var = model.getVars() 
+        # for i in range(model.numVars):
+        #     if var[i].x != 0:
+        #         print(var[i].varName, " = ", var[i].x)
 
 # 列生成开始计时
 Tstart1 = time.clock()
