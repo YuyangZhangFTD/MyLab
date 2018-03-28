@@ -24,7 +24,6 @@ Summary:
     DatasetAutoFolds.split
 """
 
-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from collections import defaultdict
@@ -36,6 +35,7 @@ import warnings
 
 from six.moves import input
 from six.moves import range
+from collections import defaultdict
 
 from MyReader_v3 import Reader
 from MyBuiltinDatasets_v3 import download_builtin_dataset
@@ -87,7 +87,7 @@ class Dataset:
             answered = False
             while not answered:
                 print('Dataset ' + name + ' could not be found. Do you want '
-                      'to download it? [Y/n] ', end='')
+                                          'to download it? [Y/n] ', end='')
                 choice = input().lower()
 
                 if choice in ['yes', 'y', '', 'omg this is so nice of you!!']:
@@ -381,7 +381,7 @@ class ImplicitDataset:
                            itertools.islice(f, self.reader.skip_lines, None)]
         return raw_ratings
 
-    # TODO
+    # TODO: deprecated, use 'construct_train_and_test'
     def folds(self):
 
         warnings.warn('Using data.split() or using load_from_folds() '
@@ -440,14 +440,46 @@ class ImplicitDataset:
 
         return trainset
 
-    # TODO
     def construct_testset(self, raw_testset):
 
         return [(ruid, riid, r_ui_trans)
                 for (ruid, riid, r_ui_trans, _) in raw_testset]
 
     # TODO, consider leave-one-out or leave-many-out, and sorting by timestamp
-    def construct_train_and_test(self, ):
+    def construct_train_and_test(self, leave_n_out=1, folds=5, order_by_time=False):
+
+        if len(self.raw_ratings[0]) < 4 and order_by_time:
+            print("timestamp is missing")
+            order_by_time = False
+
+        user_feedback = defaultdict(list)
+
+        for u, i, r, *t in self.raw_ratings:
+            user_feedback[u].append((i, r, t[0] if order_by_time else None))
+
+        for __ in range(folds):
+            raw_ratings_train = list()
+            raw_ratings_test = list()
+
+            for u in user_feedback.keys():
+                u_ratings = random.shuffle(user_feedback[u])
+
+                sorted_u_ratings = sorted(
+                    u_ratings,
+                    key=lambda x: (x[1], x[-1]) if order_by_time else lambda x: x[-1],
+                    reverse=True
+                )
+
+                if sorted_u_ratings[leave_n_out] > 0:
+                    raw_ratings_test.append([[u] + x for x in sorted_u_ratings[:leave_n_out]])
+                    # TODO: add 0 rating or not ?
+                    raw_ratings_train.append([[u] + x for x in sorted_u_ratings[leave_n_out:] if x[1] > 0])
+                else:
+                    # TODO: should users not in test set be put into train set?
+                    print("Not enough positive samples")
+
+            yield self.construct_trainset(raw_ratings_train), self.construct_testset(raw_ratings_test)
+
         pass
 
 
@@ -475,31 +507,33 @@ class ImplicitDatasetAutoFolds(ImplicitDataset):
 
         return self.construct_trainset(self.raw_ratings)
 
-    def raw_folds(self):
-
-        if not self.has_been_split:
-            self.split()
-
-        def k_folds(seq, n_folds):
-
-            start, stop = 0, 0
-            for fold_i in range(n_folds):
-                start = stop
-                stop += len(seq) // n_folds
-                if fold_i < len(seq) % n_folds:
-                    stop += 1
-                yield seq[:start] + seq[stop:], seq[start:stop]
-
-        return k_folds(self.raw_ratings, self.n_folds)
-
-    def split(self, n_folds=5, shuffle=True):
-
-        if n_folds > len(self.raw_ratings) or n_folds < 2:
-            raise ValueError('Incorrect value for n_folds. Must be >=2 and '
-                             'less than the number or entries')
-
-        if shuffle:
-            random.shuffle(self.raw_ratings)
-
-        self.n_folds = n_folds
-        self.has_been_split = True
+    # # TODO: deprecated
+    # def raw_folds(self):
+    #
+    #     if not self.has_been_split:
+    #         self.split()
+    #
+    #     def k_folds(seq, n_folds):
+    #
+    #         start, stop = 0, 0
+    #         for fold_i in range(n_folds):
+    #             start = stop
+    #             stop += len(seq) // n_folds
+    #             if fold_i < len(seq) % n_folds:
+    #                 stop += 1
+    #             yield seq[:start] + seq[stop:], seq[start:stop]
+    #
+    #     return k_folds(self.raw_ratings, self.n_folds)
+    #
+    # # TODO: deprecated
+    # def split(self, n_folds=5, shuffle=True):
+    #
+    #     if n_folds > len(self.raw_ratings) or n_folds < 2:
+    #         raise ValueError('Incorrect value for n_folds. Must be >=2 and '
+    #                          'less than the number or entries')
+    #
+    #     if shuffle:
+    #         random.shuffle(self.raw_ratings)
+    #
+    #     self.n_folds = n_folds
+    #     self.has_been_split = True
