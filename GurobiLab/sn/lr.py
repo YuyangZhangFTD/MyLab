@@ -18,7 +18,7 @@ def iter_rmp(x, param):
     # add variables
     u = rmp.addVars([k for k in range(num_k)], [j for j in range(num_j)], vtype=GRB.CONTINUOUS, name="u")
     v = rmp.addVars([k for k in range(num_k)], [j for j in range(num_j)], vtype=GRB.CONTINUOUS, name="v")
-    w = rmp.addVars([j for j in range(num_j)], lb=-1*GRB.INFINITY, ub=0, vtype=GRB.CONTINUOUS, name="w")
+    w = rmp.addVars([j for j in range(num_j)], lb=-1*GRB.INFINITY, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name="w")
 
     # set objective
     rmp.setObjective(

@@ -12,7 +12,7 @@ num_i, num_j = c.shape
 Inf = 1e8
 loading_rate = 0.5
 
-num_j=200
+num_j=250
 
 # model
 m = Model()
