@@ -21,10 +21,10 @@ if example == 1:
         [[10, 30, 20] for _ in range(4)]
     )
     bar_y = np.array([
-        [0, 1, 0],
+        [1, 0, 0],
         [0, 0, 1],
-        [1, 1, 0],
-        [0, 1, 0]
+        [1, 0, 0],
+        [0, 0, 1]
     ])
 elif example == 2:
     # example 2, optimal 4541
