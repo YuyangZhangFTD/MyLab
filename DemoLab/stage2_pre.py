@@ -74,18 +74,17 @@ original_data["daytime"] = original_data.loc[:, "daytime"].astype(str) \
 # clearness
 original_data["pid"] = original_data["pid"].astype(str)
 original_data = original_data[original_data.daytime > "20151231"]
-original_data = original_data[original_data.sale_price < 1]
 
-# get clear dataa
-data = original_data[
-    (original_data.pid != "659182759") &
-    (original_data.pid != "104062166") &
-    (original_data.pid != "163703087") &
-    (original_data.pid != "125081686") &
-    (original_data.pid != "164570891") &
-    (original_data.pid != "688396007") &
-    (original_data.pid != "153148786")
-    ]
+# # get clear dataa
+# data = original_data[
+#     (original_data.pid != "659182759") &
+#     (original_data.pid != "104062166") &
+#     (original_data.pid != "163703087") &
+#     (original_data.pid != "125081686") &
+#     (original_data.pid != "164570891") &
+#     (original_data.pid != "688396007") &
+#     (original_data.pid != "153148786")
+#     ]
 
 data = original_data.groupby(["daytime", "pid"], as_index=False).agg({
     "sale_cnt": np.sum,
