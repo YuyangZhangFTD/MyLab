@@ -21,7 +21,7 @@ pid_list = [
     "104131266",
     "104131264",
 ]
-original_data = pd.read_csv("input2/mlp.order_sale.record", delimiter="\t")
+original_data = pd.read_csv("input2/order_sale.txt", delimiter="\t")
 
 original_data.columns = [
     "daytime",
